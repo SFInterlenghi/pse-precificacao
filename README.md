@@ -20,7 +20,7 @@ Aplicação single-file HTML auto-contida (~395 KB). Todo o CSS, HTML e JavaScri
 
 ## Como usar
 
-1. Abra `pse_v24_codex_revision_tracking.html` em qualquer browser moderno (Chrome / Edge)
+1. Abra `pse_v25_codex_revision_cycle.html` em qualquer browser moderno (Chrome / Edge)
 2. Carregue o arquivo `ISIBF_DB.json` (banco de dados local — **não versionado**)
 3. Faça login com seu e-mail corporativo
 
@@ -29,14 +29,16 @@ Aplicação single-file HTML auto-contida (~395 KB). Todo o CSS, HTML e JavaScri
 ## Estrutura do repositório
 
 ```
-pse_v24_codex_revision_tracking.html ← app atual (controle de revisão beta)
-pse_v23_codex_beta_fixes.html        ← base anterior Codex
+pse_v25_codex_revision_cycle.html    ← app atual (ciclo completo de revisão)
+pse_v24_codex_revision_tracking.html ← base anterior Codex
+pse_v23_codex_beta_fixes.html        ← base Codex anterior
 pse_v22_claude_continuation.html     ← base Claude anterior
 c-system.css                       ← design system (tokens, componentes)
 C-premium.html                     ← protótipo visual de referência
 landing.html                       ← protótipo da tela de login
 HANDOVER.md                        ← regras de design e constraints invioláveis
-IMPLEMENTATION_LOG_CODEX_V24.md    ← log de implementação mais recente
+IMPLEMENTATION_LOG_CODEX_V25.md    ← log de implementação mais recente
+IMPLEMENTATION_LOG_CODEX_V24.md    ← log anterior Codex
 IMPLEMENTATION_LOG_CODEX_V23.md    ← log anterior Codex
 IMPLEMENTATION_LOG_CLAUDE_V22.md   ← log anterior
 precos_default_reagentes_pdi_2026.xlsx  ← fonte original dos preços
@@ -57,6 +59,7 @@ Ver `HANDOVER.md` para a lista completa. Resumo:
 
 | Versão | Arquivo | Descrição |
 |--------|---------|-----------|
+| v25 | `pse_v25_codex_revision_cycle.html` | Ciclo completo: base de aprovação, aceitar/rejeitar diff e reenviar |
 | v24 | `pse_v24_codex_revision_tracking.html` | Hotfix: controle de alterações em subpropostas editadas por gestor/LT |
 | v23 | `pse_v23_codex_beta_fixes.html` | Correções beta: Nova Proposta, catálogo, validações e acesso |
 | v22 | `pse_v22_claude_continuation.html` | Base anterior — correções beta aplicadas |
