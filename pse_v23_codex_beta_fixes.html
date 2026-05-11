@@ -6385,7 +6385,10 @@ const DB = {
     if(email && p.id_mae && this._data?.proposals?.[p.id_mae]){
       const mae = this._data.proposals[p.id_mae];
       if([mae.email_elaborador, mae.email_aprovador].map(v=>String(v||'').toLowerCase()).includes(email)) return true;
-      if((mae.colaboradores||[]).some(c=>String(c.email||'').toLowerCase()===email)) return true;
+      if(p.tipo_proposta==='equipe' && (mae.colaboradores||[]).some(c=>
+        String(c.email||'').toLowerCase()===email &&
+        (!Array.isArray(c.equipes) || !c.equipes.length || c.equipes.includes(p.equipe))
+      )) return true;
     }
     if(email && String(p.criado_por||'').toLowerCase()===email) return true;
     if(p.status==='em_revisao' && email && String(p.email_elaborador||'').toLowerCase()===email) return true;
@@ -6427,7 +6430,8 @@ const DB = {
       if (role === 'pesquisador' && email) {
         const isOwner = p.email_elaborador === email;
         const isParentOfOwner = p.tipo_proposta === 'mae' && TEAM.getEquipes(p.id).some(e => e.email_elaborador === email);
-        if(!isOwner && !isParentOfOwner) return false;
+        const isInvolved = this.isUserInvolvedInProposal(p, user);
+        if(!isOwner && !isParentOfOwner && !isInvolved) return false;
       }
       return true;
     };

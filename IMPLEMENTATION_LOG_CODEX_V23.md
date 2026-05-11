@@ -50,3 +50,14 @@ Gerado em 2026-05-11.
 - Abrir menu do usuário e confirmar `Equipe & Acesso`.
 - Clicar/expandir barra de validações em proposta mãe com erros em sub-propostas.
 - Alterar EP/EB/SN para soma diferente de 100% e confirmar erro vermelho + destaque no bloco.
+
+## Hotfix pós-teste com `ISIBF_DB.json`
+
+- Problema observado: colaboradores criados em Nova Proposta mãe eram salvos no DB, mas usuários `pesquisador` não viam a proposta na lista.
+- Causa: o filtro de visualização de `DB.renderList()` para `pesquisador` ainda considerava apenas elaborador ou filho de elaborador, cortando colaboradores antes do agrupamento em `Minhas propostas`.
+- Correção: `renderList()` agora usa `DB.isUserInvolvedInProposal()` também para `pesquisador`.
+- Ajuste adicional: colaboradores da proposta mãe só liberam sub-propostas das equipes marcadas para aquele colaborador; a proposta mãe continua visível como contexto.
+- Verificado com o DB gerado:
+  - `123@firjan.com.br` vê `ISIB&F-2026-0006` e `ISIB&F-2026-0006-TAP`.
+  - `abc@firjan.com.br` vê `ISIB&F-2026-0006` e `ISIB&F-2026-0006-TVB`.
+  - `fscunha@firjan.com.br` vê a proposta como aprovador TAP.
