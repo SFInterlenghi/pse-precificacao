@@ -20,7 +20,7 @@ Aplicação single-file HTML auto-contida (~395 KB). Todo o CSS, HTML e JavaScri
 
 ## Como usar
 
-1. Abra `pse_v22_claude_continuation.html` em qualquer browser moderno (Chrome / Edge)
+1. Abra `pse_v23_codex_beta_fixes.html` em qualquer browser moderno (Chrome / Edge)
 2. Carregue o arquivo `ISIBF_DB.json` (banco de dados local — **não versionado**)
 3. Faça login com seu e-mail corporativo
 
@@ -29,12 +29,14 @@ Aplicação single-file HTML auto-contida (~395 KB). Todo o CSS, HTML e JavaScri
 ## Estrutura do repositório
 
 ```
-pse_v22_claude_continuation.html   ← app atual (versão em produção)
+pse_v23_codex_beta_fixes.html      ← app atual (correções beta Codex)
+pse_v22_claude_continuation.html   ← base anterior
 c-system.css                       ← design system (tokens, componentes)
 C-premium.html                     ← protótipo visual de referência
 landing.html                       ← protótipo da tela de login
 HANDOVER.md                        ← regras de design e constraints invioláveis
-IMPLEMENTATION_LOG_CLAUDE_V22.md   ← log de implementação mais recente
+IMPLEMENTATION_LOG_CODEX_V23.md    ← log de implementação mais recente
+IMPLEMENTATION_LOG_CLAUDE_V22.md   ← log anterior
 precos_default_reagentes_pdi_2026.xlsx  ← fonte original dos preços
 catalogo_default_reagentes.json    ← catálogo de preços em JSON
 outdated/pse_v12.html              ← versão original (baseline de referência)
@@ -53,5 +55,6 @@ Ver `HANDOVER.md` para a lista completa. Resumo:
 
 | Versão | Arquivo | Descrição |
 |--------|---------|-----------|
-| v22 | `pse_v22_claude_continuation.html` | Versão atual — todas as correções beta aplicadas |
+| v23 | `pse_v23_codex_beta_fixes.html` | Correções beta: Nova Proposta, catálogo, validações e acesso |
+| v22 | `pse_v22_claude_continuation.html` | Base anterior — correções beta aplicadas |
 | v12 | `outdated/pse_v12.html` | Versão original de referência |
