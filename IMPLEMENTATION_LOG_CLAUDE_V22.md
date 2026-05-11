@@ -64,11 +64,64 @@ Não. Zero alterações em `CALC`, `VAL`, `EXPORT`, `REVISION`, `AUTH`, `PRICE_C
 
 ---
 
+## Round 3 — Mudanças Aplicadas (commit `42a0ab3`)
+
+### Extra A — Versão na landing page
+- `v14.0` → `v0.22` na `<span class="lnd-version">`
+
+### Extra B — Nova Proposta modal overflow
+- `modal-box` ganhou `max-height:90vh;display:flex;flex-direction:column`
+- Grid de campos envolvido em `div` com `flex:1;overflow-y:auto`
+- `modal-acts` ganhou `flex-shrink:0;border-top;padding-top` para ficar visível
+
+### Item 2 — Notification banner (posicionamento)
+- CSS: removido `position:fixed;top:52px;left:0;right:0;z-index:3500`; adicionado `flex-shrink:0`
+- HTML: movido de `</body>` para dentro de `#app`, logo após `</header>`, antes de `#title-bar`
+
+### Item 1 — Home screen pós-login
+- CSS: `#home-screen`, `.home-card`, `.home-greeting`, etc.
+- HTML: `#home-screen` com 3 cards (Nova Proposta / Verificar Proposta / Revisões & Aprovações)
+- `LANDING.showHomeScreen()` / `LANDING.hideHomeScreen()` adicionados
+- `LANDING._finishLogin()`: chama `showHomeScreen()` em vez de `DB.openList()`
+- Cada card: chama `LANDING.hideHomeScreen()` + ação correspondente
+
+### Item 7 — Catálogo bug fix
+- `CONS.openCatalog()`: `Object.values(catalog).filter(e=>e.nome)` → `Object.entries(catalog).map(([key,e])=>({...e,nome:e.nome||key}))`
+
+### Item 6 — Otimizador CLT + CAP 176h/mês
+- `VAL.optimizeEco()` reescrito:
+  - Filtra cargos CLT (sem 'b' no id)
+  - Para cada cargo: `ecoPerHour = (sal/HORAS_ANO)*(1+enc_tec)`, `nPeople = ceil(hoursNeeded/(176*meses))`
+  - Escolhe cargo com menor `nPeople`; em empate, maior salário (menor FTE)
+  - Distribui horas: `base = floor(total/n)`, primeiros `extra` recebem `base+1`
+  - Cria N itens PTEC com `enc:true, economico:true`
+
+### Item 5 — Auto-revision snapshot
+- `DB.maybeAutoRevisionSnapshot()` adicionado: cria `state_base` quando gestor/LT edita proposta que já saiu de `em_elaboracao`
+- Chamado como primeira linha do `del()` em: PTEC, PADM, VIAG, SOFT, EQUIP, CONS, SERV, MATP
+
+### Item 3 — Líder Técnico
+- Campos `lider_tecnico`, `email_lider_tecnico` adicionados a `STATE.proposal`, `_snapshot()`, `_inflate()`, `switchUser()` reset
+- Inputs `nova-lt` e `nova-email-lt` adicionados ao modal de Nova Proposta
+- `NOVA.create()` lê e salva os novos campos; `NOVA.open()` limpa os campos
+- `AUTH.resolveRole()`: verifica `p.email_lider_tecnico` antes da lógica por `email_elaborador`; sub-propostas também verificam `mae.email_lider_tecnico`
+- `AUTH.canEdit()`: colaboradores NÃO podem editar proposta mãe (apenas visualizar)
+
+### Item 4 — Equipe & Acesso
+- Botão "Colaboradores" no workflow-bar renomeado para "Equipe & Acesso"
+- `DB.openColaboradores()` → alias para `DB.openEquipeAcesso()`
+- `openEquipeAcesso()`: para mãe, mostra seção de equipes participantes + seção de co-elaboradores
+- `addColaborador()`: reabre o modal após adição (adições sequenciais sem fechar)
+- `removeColaborador()`: já reabre via `openEquipeAcesso()`
+
+---
+
 ## Backlog / Pendências Conhecidas
 
 - Emojis em strings JS (🧪, 📦, ✈, 🔵, 🟡 etc.) — intocáveis por regra inviolável do HANDOVER
 - ▲/▼ no `val-toggle` — conteúdo setado via JS (`UI.toggleValBar`), não pode ser SVG sem alterar JS
 - Verificação visual completa no browser (landing, login, 9 seções, modais, export XLSX) — recomendada antes do deploy
+- O campo "Líder Técnico" na tela de edição da proposta (save-modal) ainda não mostra/edita `lider_tecnico` e `email_lider_tecnico` — somente Nova Proposta tem os campos por ora
 
 ---
 
