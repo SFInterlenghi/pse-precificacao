@@ -1,0 +1,41 @@
+# ── Bancos de dados (dados sensíveis — nunca versionar) ───────────
+db_real_v0.json
+ISIBF_DB*.json
+
+# ── Configurações locais do Claude Code ───────────────────────────
+.claude/
+
+# ── Versões intermediárias superadas (ficam só local) ─────────────
+pse_v18_*.html
+pse_v19_*.html
+pse_v20_*.html
+pse_v21_*.html
+
+outdated/db_test_v12.json
+outdated/pse_v13_*.html
+outdated/pse_v14_*.html
+outdated/pse_v15_*.html
+outdated/pse_v16_*.html
+outdated/pse_v17_*.html
+outdated/_v12_js.txt
+outdated/_v13_js.txt
+outdated/apply_*.ps1
+outdated/patch_*.ps1
+outdated/patch_old.txt
+outdated/patch_new.txt
+outdated/HANDOFF_CONTINUATION.md
+outdated/AUDIT_PSE_V14_VS_HANDOVER.md
+outdated/README_IMPLEMENTATION.md
+outdated/IMPLEMENTATION_LOG.md
+outdated/IMPLEMENTATION_LOG_V15.md
+outdated/IMPLEMENTATION_LOG_CODEX_V16.md
+outdated/IMPLEMENTATION_LOG_CODEX_V17.md
+
+# Logs de versões superadas
+IMPLEMENTATION_LOG_CODEX_V18.md
+IMPLEMENTATION_LOG_CODEX_V19.md
+IMPLEMENTATION_LOG_CODEX_V20.md
+
+# ── Windows / OS ──────────────────────────────────────────────────
+Thumbs.db
+desktop.ini

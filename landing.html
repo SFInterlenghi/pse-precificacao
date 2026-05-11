@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>PSE · Login</title>
+<link rel="stylesheet" href="c-system.css">
+<style>
+body{height:900px;width:1440px;display:flex;overflow:hidden}
+
+/* ─── Left column: editorial intro ─── */
+.left-col{
+  flex:1;background:var(--paper);
+  padding:48px 60px;display:flex;flex-direction:column;
+  border-right:1px solid var(--hairline);position:relative;overflow:hidden;
+}
+.left-col::before{
+  content:"";position:absolute;top:0;right:-1px;bottom:0;width:140px;
+  background:linear-gradient(90deg,transparent,var(--paper-2));pointer-events:none;
+}
+.brand-row{display:flex;align-items:center;gap:14px;margin-bottom:48px}
+.brand-mark{
+  width:42px;height:42px;background:var(--ink);color:#fff;border-radius:50%;
+  display:grid;place-items:center;font-family:var(--serif);font-style:italic;
+  font-weight:600;font-size:20px;letter-spacing:-.7px;
+}
+.brand-stack{display:flex;flex-direction:column;line-height:1.05}
+.brand-stack b{font-family:var(--serif);font-size:21px;font-weight:600;letter-spacing:-.5px}
+.brand-stack span{font-size:11px;color:var(--ink-3);letter-spacing:.5px;text-transform:uppercase;margin-top:2px}
+
+.hero-eyebrow{
+  font-size:10.5px;font-weight:500;color:var(--gold-deep);
+  letter-spacing:1.6px;text-transform:uppercase;margin-bottom:18px;
+  display:inline-flex;align-items:center;gap:10px;
+}
+.hero-eyebrow .pip{display:inline-block;width:18px;height:1px;background:var(--gold)}
+
+.hero-title{
+  font-family:var(--serif);font-size:46px;font-weight:500;
+  letter-spacing:-1.4px;line-height:1.08;color:var(--ink);
+  margin-bottom:22px;max-width:580px;
+}
+.hero-title em{font-style:italic;color:var(--gold-deep)}
+
+.hero-lede{
+  font-size:15.5px;color:var(--ink-2);line-height:1.55;
+  max-width:520px;margin-bottom:40px;
+}
+.hero-lede strong{color:var(--ink);font-weight:600}
+
+.fomento-row{display:flex;gap:8px;margin-bottom:48px;flex-wrap:wrap}
+.fomento-chip{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:6px 11px;border-radius:var(--r);
+  font-size:11.5px;font-weight:500;border:1px solid;
+}
+
+.feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:auto}
+.feature{display:flex;gap:14px;align-items:flex-start}
+.feature-icon{
+  width:36px;height:36px;border-radius:var(--r-md);background:var(--paper-2);
+  display:grid;place-items:center;color:var(--gold-deep);flex-shrink:0;
+  border:1px solid var(--hairline);
+}
+.feature-body{flex:1;min-width:0}
+.feature-title{font-family:var(--serif);font-size:15px;font-weight:500;color:var(--ink);margin-bottom:4px;letter-spacing:-.2px}
+.feature-desc{font-size:12.5px;color:var(--ink-3);line-height:1.5}
+
+/* ─── Right column: login ─── */
+.right-col{
+  width:520px;background:var(--paper-2);
+  padding:48px 56px;display:flex;flex-direction:column;
+  position:relative;
+}
+.top-meta{
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:11px;color:var(--ink-3);margin-bottom:auto;
+}
+.version{font-family:var(--mono);letter-spacing:.3px}
+.help-link{color:var(--ink-3);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.help-link:hover{color:var(--ink)}
+
+.login-block{margin:auto 0}
+.login-eyebrow{font-size:10.5px;font-weight:500;color:var(--ink-3);letter-spacing:1.4px;text-transform:uppercase;margin-bottom:10px}
+.login-title{font-family:var(--serif);font-size:30px;font-weight:500;letter-spacing:-.7px;color:var(--ink);margin-bottom:8px;line-height:1.15}
+.login-sub{font-size:13px;color:var(--ink-3);margin-bottom:32px;line-height:1.5}
+
+.db-status{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;
+  background:var(--paper);border:1px solid var(--hairline);border-radius:var(--r-md);
+  margin-bottom:18px;
+}
+.db-status.loaded{background:var(--pos-soft);border-color:var(--pos-border)}
+.db-status-icon{
+  width:32px;height:32px;border-radius:var(--r);background:var(--paper-2);
+  display:grid;place-items:center;color:var(--ink-3);flex-shrink:0;
+}
+.db-status.loaded .db-status-icon{background:#fff;color:var(--pos)}
+.db-status-body{flex:1;min-width:0}
+.db-status-title{font-size:12.5px;font-weight:500;color:var(--ink);line-height:1.3}
+.db-status-meta{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);margin-top:2px;letter-spacing:.2px}
+.db-status-action{flex-shrink:0}
+
+.login-form .fg{margin-bottom:14px}
+.login-form .input{padding:11px 13px;font-size:13.5px}
+
+.divider-row{display:flex;align-items:center;gap:14px;margin:24px 0;color:var(--ink-4);font-size:11px;letter-spacing:.5px;text-transform:uppercase;font-weight:500}
+.divider-row::before,.divider-row::after{content:"";flex:1;height:1px;background:var(--hairline)}
+
+.recent-block{margin-top:8px}
+.recent-title{font-size:11px;font-weight:500;color:var(--ink-3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.recent-title em{font-family:var(--serif);font-style:italic;color:var(--ink-4);font-weight:400;text-transform:none;letter-spacing:0;font-size:11.5px}
+.recent-list{display:flex;flex-direction:column;gap:6px}
+.recent-item{
+  display:flex;align-items:center;gap:10px;padding:9px 11px;
+  background:var(--paper);border:1px solid var(--hairline);border-radius:var(--r);
+  cursor:pointer;transition:all .12s;
+}
+.recent-item:hover{border-color:var(--gold);box-shadow:var(--shadow-xs)}
+.recent-avatar{width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-family:var(--serif);font-style:italic;font-size:11px;font-weight:600;flex-shrink:0}
+.recent-body{flex:1;min-width:0}
+.recent-name{font-size:12.5px;font-weight:500;color:var(--ink);line-height:1.2}
+.recent-mail{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);margin-top:1px}
+.recent-time{font-family:var(--mono);font-size:10px;color:var(--ink-4);flex-shrink:0}
+
+.foot{
+  margin-top:auto;font-size:10.5px;color:var(--ink-4);
+  display:flex;justify-content:space-between;align-items:center;
+  padding-top:24px;border-top:1px solid var(--hairline);
+  font-family:var(--mono);letter-spacing:.3px;
+}
+.foot a{color:var(--ink-3);text-decoration:none}
+.foot a:hover{color:var(--ink)}
+</style>
+</head>
+<body>
+
+<!-- ─────── LEFT ─────── -->
+<div class="left-col">
+  <div class="brand-row">
+    <div class="brand-mark">P</div>
+    <div class="brand-stack">
+      <b>PSE</b>
+      <span>Firjan · ISIB&F</span>
+    </div>
+  </div>
+
+  <div class="hero-eyebrow">
+    <span class="pip"></span>
+    Precificação de Serviços Especializados
+  </div>
+
+  <h1 class="hero-title">
+    Elaboração e controle de propostas <em>de PD&I</em> com regramento aplicado.
+  </h1>
+
+  <p class="hero-lede">
+    Ferramenta interna do <strong>Instituto SENAI de Inovação em Biossintéticos &amp; Fibras</strong> para montar, validar e acompanhar propostas com pessoal técnico, viagens, equipamentos, consumíveis e serviços. Cada item é checado em tempo real contra os manuais das agências de fomento.
+  </p>
+
+  <div class="fomento-row">
+    <span class="fomento-chip tag-embrapii">EMBRAPII</span>
+    <span class="fomento-chip tag-anp">ANP — Res. 918/2023</span>
+    <span class="fomento-chip tag-petrobras">ANP/Petrobras</span>
+    <span class="fomento-chip tag-aneel">ANEEL</span>
+    <span class="fomento-chip tag-sem">Contrato direto</span>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature">
+      <div class="feature-icon">
+        <svg class="icn icn-lg" viewBox="0 0 24 24"><path d="M9 11H5a2 2 0 0 0-2 2v7h18v-7a2 2 0 0 0-2-2h-4"/><rect x="9" y="3" width="6" height="8" rx="1"/><path d="M12 11v9"/></svg>
+      </div>
+      <div class="feature-body">
+        <div class="feature-title">Elaboração estruturada</div>
+        <div class="feature-desc">Pessoal, viagens, equipamentos, consumíveis e serviços organizados em rubricas com cálculo automático.</div>
+      </div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">
+        <svg class="icn icn-lg" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+      </div>
+      <div class="feature-body">
+        <div class="feature-title">Validação em tempo real</div>
+        <div class="feature-desc">Erros e avisos baseados nos manuais EMBRAPII, ANP e ANEEL aparecem instantaneamente conforme você digita.</div>
+      </div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">
+        <svg class="icn icn-lg" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <div class="feature-body">
+        <div class="feature-title">Multi-equipe consolidada</div>
+        <div class="feature-desc">Propostas-mãe agregam sub-equipes (ESP, DAP, TVB, CIN…) com totais e indicadores consolidados.</div>
+      </div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">
+        <svg class="icn icn-lg" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9"/><path d="M3 4v5h5"/><path d="M12 7v5l3 2"/></svg>
+      </div>
+      <div class="feature-body">
+        <div class="feature-title">Fluxo de revisão com diff</div>
+        <div class="feature-desc">Revisões mostram cada alteração em valores, horas e FTE com cor — base vs. revisada lado a lado.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─────── RIGHT ─────── -->
+<div class="right-col">
+  <div class="top-meta">
+    <span class="version">v11.0 · jan 2026</span>
+    <a class="help-link" href="#">
+      <svg class="icn icn-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 4M12 17.5h.01"/></svg>
+      Ajuda
+    </a>
+  </div>
+
+  <div class="login-block">
+    <div class="login-eyebrow">Acesso</div>
+    <h2 class="login-title">Entrar</h2>
+    <p class="login-sub">Suas permissões dependem do seu cadastro no banco de dados compartilhado.</p>
+
+    <div class="db-status loaded">
+      <div class="db-status-icon">
+        <svg class="icn" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+      </div>
+      <div class="db-status-body">
+        <div class="db-status-title">db.json carregado</div>
+        <div class="db-status-meta">142 propostas · 38 usuários · há 2 min</div>
+      </div>
+      <button class="btn btn-secondary btn-sm db-status-action">Trocar</button>
+    </div>
+
+    <div class="login-form">
+      <div class="fg">
+        <label class="lbl">E-mail corporativo</label>
+        <input type="email" class="input" placeholder="nome@firjan.com.br" value="">
+        <div class="hlp">use o e-mail cadastrado no DB</div>
+      </div>
+
+      <button class="btn btn-primary btn-block btn-lg" style="margin-top:8px">
+        Entrar
+        <svg class="icn icn-sm" viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <div class="divider-row">ou continue como</div>
+
+    <div class="recent-block">
+      <div class="recent-title">
+        <span>Sessões recentes neste navegador</span>
+        <em>3 últimas</em>
+      </div>
+      <div class="recent-list">
+        <div class="recent-item">
+          <div class="recent-avatar">A</div>
+          <div class="recent-body">
+            <div class="recent-name">Ana C. Dias</div>
+            <div class="recent-mail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e8898b9b8c81899ba88e819a828986c68b8785c68a9a">[email&#160;protected]</a></div>
+          </div>
+          <span class="recent-time">há 2h</span>
+        </div>
+        <div class="recent-item">
+          <div class="recent-avatar" style="background:var(--gold)">R</div>
+          <div class="recent-body">
+            <div class="recent-name">Rafael Moreira</div>
+            <div class="recent-mail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="394b54564b5c504b58795f504b535857175a5654175b4b">[email&#160;protected]</a></div>
+          </div>
+          <span class="recent-time">ontem</span>
+        </div>
+        <div class="recent-item">
+          <div class="recent-avatar" style="background:var(--gold-deep)">P</div>
+          <div class="recent-body">
+            <div class="recent-name">Paulo Cunha</div>
+            <div class="recent-mail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a4d4c7d1caccc5e4c2cdd6cec5ca8ac7cbc98ac6d6">[email&#160;protected]</a></div>
+          </div>
+          <span class="recent-time">3d</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>ISIB&F · uso interno</span>
+    <a href="#">Tutorial &amp; FAQ →</a>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script></body>
+</html>
