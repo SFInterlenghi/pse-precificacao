@@ -3563,6 +3563,7 @@ const VAL={
       const finSemSn = calc.totalFin; const totalProjetoDesejado = finSemSn / (calc.config.ep_pct + calc.config.eb_pct);
       const ecoDesejado = totalProjetoDesejado * calc.config.sn_pct; const diffEco = ecoDesejado - calc.totalEco;
       if (diffEco < -100) yellows.push({sec:'sec-config', msg:`O aporte econômico atual (R$ ${calc.totalEco.toLocaleString('pt-br')}) está acima do necessário para bater a meta de ${fmt_pct(calc.config.sn_pct)} do SENAI.`});
+      if (diffEco > 100) reds.push({sec:'sec-config', msg:`Aporte econômico insuficiente: faltam ${fmt_r(diffEco)} em itens marcados como ECONÔMICO para a meta de ${fmt_pct(calc.config.sn_pct)} SENAI. Use o botão "Otimizar HH" na barra lateral.`});
 
       const sup=calc.inds.find(i=>i.id==='suporte');
       if(sup&&sup.pct>DATA.embrapii_suporte_max+0.001) reds.push({sec:'sec-config',msg:`Suporte Operacional ${fmt_pct(sup.pct)} excede limite de 15% do total (EMBRAPII §8.2.v)`});
@@ -3618,6 +3619,55 @@ const VAL={
 
     yellows.push(...BEST_PRACTICES.run(st,calc));
     return {reds,yellows};
+  },
+
+  // ── Otimizador econômico EMBRAPII ─────────────────────────────
+  // Adiciona o mínimo de HH do cargo mais barato para cobrir o déficit de eco.
+  // Atualiza STATE.config.sn_pct / ep_pct / eb_pct para refletir nova realidade.
+  optimizeEco(){
+    if(!FOMENTO.has(STATE.meta,'embrapii')) return toast('Otimização disponível apenas para EMBRAPII.','warn');
+    const calc = CALC.calcAll(STATE); const c = calc.config;
+    const finSemSn = calc.totalFin;
+    const totalProj = (c.ep_pct + c.eb_pct) > 0 ? finSemSn / (c.ep_pct + c.eb_pct) : 0;
+    const ecoTarget = totalProj * c.sn_pct;
+    const deficit = ecoTarget - calc.totalEco;
+    if(deficit <= 50){ toast('Aporte econômico já suficiente — nenhum HH adicionado.','ok'); return; }
+
+    // Cargo mais barato (salário > 0) sem encargos (bolsista)
+    const cheapestRole = DATA.ptec_roles.filter(r=>r.sal>0).reduce((min,r)=>r.sal<min.sal?r:min);
+    const hourlyRate = cheapestRole.sal / DATA.HORAS_ANO;  // R$/h
+    const hoursNeeded = Math.ceil(deficit / hourlyRate);
+
+    const item = {
+      id: STATE.uid(),
+      nome: 'HH Técnico — otimização econômica',
+      cargo: cheapestRole.id,
+      horas: hoursNeeded,
+      meses: STATE.meta.duracao || 18,
+      enc: false,
+      ict_pub: false,
+      economico: true
+    };
+    STATE.ptec.push(item);
+    AUDIT.log('edicao','ptec',item.id,`Adicionou ${hoursNeeded}h de ${cheapestRole.label} por otimização econômica`);
+
+    // Recalcular e atualizar percentuais para refletir nova distribuição real
+    const newCalc = CALC.calcAll(STATE);
+    const newTotal = newCalc.totalFin + newCalc.totalEco;
+    if(newTotal > 0){
+      const rawSn = newCalc.totalEco / newTotal;
+      const newSn = Math.round(rawSn * 100) / 100;
+      const remaining = 1.0 - newSn;
+      const epFrac = (c.ep_pct + c.eb_pct) > 0 ? c.ep_pct / (c.ep_pct + c.eb_pct) : 0.56;
+      const newEp = Math.round(remaining * epFrac * 100) / 100;
+      const newEb = Math.round((remaining - newEp) * 100) / 100;
+      STATE.config.sn_pct = newSn;
+      STATE.config.ep_pct = newEp;
+      STATE.config.eb_pct = newEb;
+    }
+
+    UI.renderAll(); PTEC.render();
+    toast(`✅ ${hoursNeeded}h de ${cheapestRole.label} adicionados (econômico). Percentuais EP/EB/SN atualizados.`,'ok');
   }
 };
 
@@ -4172,13 +4222,43 @@ const CONS={
     if(!c.unidade) c.unidade = 'un';
     c.valor = +(c.valor||0);
   },
-  async estimateChemical(id){
+  openCatalog(id){
     const c = STATE.cons.find(x=>x.id===id); if(!c) return;
-    const btn = document.getElementById('chem-btn-'+id);
-    if(btn){btn.disabled=true;btn.textContent='Analisando...';}
-    await new Promise(r => setTimeout(r, 400)); 
-    c.cotacao = { ok: true, nota: `🧪 Orçamento genérico base concluído.` };
-    this.render(); UI.afterChange();
+    const catalog = DB._data?.price_catalog?.cons || {};
+    const entries = Object.values(catalog).filter(e=>e&&e.nome).sort((a,b)=>String(a.nome).localeCompare(String(b.nome),'pt-BR'));
+    if(!entries.length){
+      toast('Catálogo vazio. Preencha um consumível e clique "💾 Salvar no catálogo" para começar a populá-lo.','warn');
+      return;
+    }
+    CONS._catalogEntries = entries;
+    CONS._catalogTargetId = id;
+    const rows = entries.map((e,i)=>`
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--hairline-soft)">
+        <span style="flex:1;font-size:13px">${esc(e.nome)}</span>
+        <span style="font-size:11px;color:var(--ink-3);font-family:var(--mono)">${fmt_r(e.valor_unitario||0)}/un</span>
+        <span style="font-size:11px;color:var(--ink-4);min-width:36px;text-align:right">${esc(e.unidade||'un')}</span>
+        <button class="btn btn-xs btn-outline" onclick="CONS.applyFromCatalog(${i})">Usar</button>
+      </div>`).join('');
+    document.getElementById('save-modal-title').textContent='🧪 Catálogo de Preços — Consumíveis';
+    document.getElementById('save-modal-body').innerHTML=`
+      <div style="font-size:11px;color:var(--ink-4);margin-bottom:8px">${entries.length} item(ns) no catálogo compartilhado</div>
+      <div style="max-height:320px;overflow-y:auto">${rows}</div>
+      <div class="hlp" style="margin-top:8px">Clique "Usar" para preencher nome, preço unitário e unidade do item atual.</div>`;
+    document.getElementById('save-modal-ok').textContent='Fechar';
+    document.getElementById('save-modal-ok').onclick=()=>{ document.getElementById('save-modal').style.display='none'; };
+    document.getElementById('save-modal').style.display='flex';
+  },
+  applyFromCatalog(idx){
+    const e = CONS._catalogEntries?.[idx]; const id = CONS._catalogTargetId;
+    if(!e||!id) return;
+    const c = STATE.cons.find(x=>x.id===id); if(!c) return;
+    c.nome = e.nome||c.nome;
+    c.valor_unitario = e.valor_unitario||0;
+    c.unidade = e.unidade||'un';
+    c.valor = Math.round((c.valor_unitario||0)*(c.quantidade||1)*100)/100;
+    document.getElementById('save-modal').style.display='none';
+    CONS.render(); UI.afterChange();
+    toast(`Preço de "${e.nome}" importado do catálogo.`,'ok');
   },
   render(){
     const isMae=STATE.meta.tipo_proposta==='mae';
@@ -4206,7 +4286,7 @@ const CONS={
           <div class="fg"><label class="lbl">Valor Total (R$)</label><input type="number" value="${c.valor||0}" min="0" onchange="CONS.upd('${c.id}','valor',+this.value)"></div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap">
-          <button class="btn btn-xs btn-outline" id="chem-btn-${c.id}" onclick="CONS.estimateChemical('${c.id}')">🧪 Base de Preço</button>
+          <button class="btn btn-xs btn-outline" onclick="CONS.openCatalog('${c.id}')">🧪 Catálogo de Preços</button>
           ${ecoWidget(c.id,'CONS',c.economico||false)}
           ${pcSave}
         </div>
@@ -4493,7 +4573,7 @@ function renderResume(){
     // ── EMBRAPII distribution (logic unchanged) ────────────────
     if(calc.dist&&FOMENTO.has(STATE.meta,'embrapii')){
       const c=calc.config; const finSemSn=calc.totalFin; const totalProj=c.ep_pct+c.eb_pct>0?finSemSn/(c.ep_pct+c.eb_pct):0; const ecoTarget=totalProj*c.sn_pct; const diff=ecoTarget-calc.totalEco;
-      let avisoEco=diff>50?`<div style="margin-top:8px;padding:6px 8px;background:var(--neg-soft);color:var(--neg);border:1px solid var(--neg-border);border-radius:3px;font-size:10px;line-height:1.4"><strong>Faltam ${fmt_r(diff)}</strong> em itens ECONÔMICO para meta ${fmt_pct(c.sn_pct)}.</div>`
+      let avisoEco=diff>50?`<div style="margin-top:8px;padding:6px 8px;background:var(--neg-soft);color:var(--neg);border:1px solid var(--neg-border);border-radius:3px;font-size:10px;line-height:1.4"><strong>Faltam ${fmt_r(diff)}</strong> em itens ECONÔMICO para meta ${fmt_pct(c.sn_pct)}.<br><button class="btn btn-xs" style="margin-top:5px;width:100%;background:var(--neg);color:#fff;border:none;padding:4px 6px" onclick="VAL.optimizeEco()">🎯 Otimizar HH Técnico</button></div>`
         :diff<-50?`<div style="margin-top:8px;padding:6px 8px;background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn-border);border-radius:3px;font-size:10px;line-height:1.4"><strong>Excesso ${fmt_r(Math.abs(diff))}</strong> acima de ${fmt_pct(c.sn_pct)}.</div>`
         :`<div style="margin-top:8px;padding:6px 8px;background:var(--pos-soft);color:var(--pos);border:1px solid var(--pos-border);border-radius:3px;font-size:10px;font-weight:bold;text-align:center">Cota SN Atingida</div>`;
       h+=`<div class="sb-section" style="margin-top:14px"><div class="sb-sec-title">Distribuição Meta EMBRAPII</div>
@@ -5721,17 +5801,29 @@ const DB = {
     const p = STATE.proposal;
     if(!p.id){ toast('Salve a proposta primeiro','err'); return; }
     if(!AUTH.canEdit()) return toast('Sem permissão.', 'err');
-    const team = APPROVERS.routingTeam(STATE.meta, p);
-    const managers = APPROVERS.getManagersByTeam(team);
-    if(team && !managers.length) return toast(`Equipe ${team} sem gestor/aprovador cadastrado.`, 'err');
-    if(managers.length === 1 && !APPROVERS.selectedMatchesTeam(p, team)){
-      p.responsavel_aprovacao = managers[0].nome;
-      p.email_aprovador = managers[0].email;
+
+    // Se o usuário já escolheu um aprovador válido no modal de salvar, respeitamos essa escolha.
+    // Só recorremos ao roteamento automático por equipe se nenhum aprovador válido estiver selecionado.
+    const selectedEmail = (p.email_aprovador||'').toLowerCase();
+    const validApprover = selectedEmail
+      ? APPROVERS.getRegistry().find(u=>u.ativo!==false && u.email.toLowerCase()===selectedEmail)
+      : null;
+
+    if(!validApprover){
+      // Sem aprovador válido → tentar roteamento por equipe
+      const team = APPROVERS.routingTeam(STATE.meta, p);
+      const managers = APPROVERS.getManagersByTeam(team);
+      if(team && !managers.length) return toast(`Equipe ${team} sem gestor/aprovador cadastrado.`,'err');
+      if(!team && !managers.length) return toast('Selecione um aprovador responsável antes de enviar. Use o modal de Salvar para escolher.','err');
+      if(managers.length===1){
+        p.responsavel_aprovacao = managers[0].nome;
+        p.email_aprovador = managers[0].email;
+      } else {
+        this._promptApproverSelection(team, managers, ()=>this.sendForApproval());
+        return;
+      }
     }
-    if(managers.length > 1 && !APPROVERS.selectedMatchesTeam(p, team)){
-      this._promptApproverSelection(team, managers, () => this.sendForApproval());
-      return;
-    }
+    // validApprover: p.email_aprovador e p.responsavel_aprovacao já estão corretos — não sobrescrever.
 
     const {reds} = VAL.run(STATE, CALC.calcAll(STATE));
     if(reds.length){ toast('Corrija os erros críticos antes de enviar','err'); return; }
@@ -5888,16 +5980,6 @@ const DB = {
     if(!p.id) return toast('Abra uma proposta primeiro.','err');
     const colabs = p.colaboradores || [];
 
-    // Build user options from DB (excluding already added and the elaborador)
-    const dbUsers = Object.entries(DB._data?.users||{});
-    const alreadyEmails = new Set([
-      String(p.email_elaborador||'').toLowerCase(),
-      ...colabs.map(c=>String(c.email||'').toLowerCase())
-    ]);
-    const available = dbUsers
-      .map(([email,u])=>({email, nome:u.nome||email.split('@')[0], papel:u.papel_global||''}))
-      .filter(u=>!alreadyEmails.has(u.email.toLowerCase()) && u.papel !== 'visualizador');
-
     const colabRows = colabs.length
       ? colabs.map(c=>`
           <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--hairline-soft)">
@@ -5907,33 +5989,40 @@ const DB = {
           </div>`).join('')
       : `<div style="font-size:12.5px;color:var(--ink-4);padding:8px 0">Nenhum co-elaborador adicionado.</div>`;
 
-    const userOpts = available.map(u=>
-      `<option value="${esc(u.email)}" data-nome="${esc(u.nome)}">${esc(u.nome)} · ${esc(u.email)}</option>`
-    ).join('');
-
     document.getElementById('save-modal-title').textContent = `Colaboradores — ${p.id}`;
     document.getElementById('save-modal-body').innerHTML = `
       <div style="margin-bottom:12px">
         <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-4);margin-bottom:8px">Acesso atual</div>
         ${colabRows}
       </div>
-      <div class="fg" style="border-top:1px solid var(--hairline);padding-top:12px">
-        <label class="lbl">Adicionar co-elaborador</label>
-        <select id="sm-colab-sel" style="margin-bottom:8px">
-          <option value="">— selecione um usuário do DB —</option>
-          ${userOpts}
-        </select>
-        <div class="hlp">Co-elaboradores podem editar apenas a proposta onde foram adicionados.</div>
+      <div style="border-top:1px solid var(--hairline);padding-top:12px">
+        <label class="lbl">Adicionar co-elaborador por e-mail</label>
+        <input type="email" id="sm-colab-email" placeholder="email@firjan.com.br" style="width:100%;margin-bottom:6px">
+        <input type="text" id="sm-colab-nome" placeholder="Nome (preenchido automaticamente se usuário já existe)" style="width:100%;margin-bottom:8px">
+        <div class="hlp">Se o e-mail não estiver no DB, o usuário será criado automaticamente com papel de pesquisador. Emails são tratados sem distinção de maiúsculas/minúsculas.</div>
       </div>`;
     document.getElementById('save-modal-ok').textContent = 'Adicionar';
     document.getElementById('save-modal-ok').onclick = () => {
-      const sel = document.getElementById('sm-colab-sel');
-      const email = sel?.value;
-      if(!email){ toast('Selecione um usuário.','err'); return; }
-      const nome = sel.selectedOptions[0]?.dataset?.nome || email.split('@')[0];
-      DB.addColaborador(email, nome);
+      const rawEmail = (document.getElementById('sm-colab-email')?.value||'').trim().toLowerCase();
+      if(!rawEmail){ toast('Informe o e-mail do co-elaborador.','err'); return; }
+      // Busca case-insensitive no DB
+      const users = DB._data?.users || {};
+      const foundKey = Object.keys(users).find(k=>k.toLowerCase()===rawEmail);
+      let nome;
+      if(foundKey){
+        nome = users[foundKey].nome || rawEmail.split('@')[0];
+      } else {
+        // Cria usuário novo
+        if(!DB._data){ toast('Carregue o DB antes de adicionar colaboradores.','err'); return; }
+        nome = (document.getElementById('sm-colab-nome')?.value||'').trim() || rawEmail.split('@')[0];
+        DB._data.users[rawEmail] = { nome, papel_global:'pesquisador', equipe_default:'', ativo:true, criado_em:DB.now() };
+        AUDIT.log('edicao',null,null,`Criou usuário ${rawEmail} via co-elaboração`);
+        toast(`Usuário "${nome}" criado no DB.`,'ok');
+      }
+      DB.addColaborador(rawEmail, nome);
     };
     document.getElementById('save-modal').style.display='flex';
+    setTimeout(()=>document.getElementById('sm-colab-email')?.focus(), 80);
   },
 
   addColaborador(email, nome){
