@@ -2308,8 +2308,9 @@ input[type=radio]:checked + .tipo-prop-card .tipo-prop-icon{color:var(--gold-dee
       <div class="fg" style="border-top:1px solid var(--gray-200);padding-top:10px;grid-column:1/-1"><label class="lbl" style="margin-bottom:4px">Responsáveis</label></div>
       <div class="fg"><label class="lbl">Elaborado por</label><input type="text" id="nova-elab"></div>
       <div class="fg"><label class="lbl">Email Elaborador</label><input type="text" id="nova-email-elab"></div>
-      <div class="fg"><label class="lbl">Resp. Aprovação</label><input type="text" id="nova-aprov"></div>
-      <div class="fg"><label class="lbl">Email Aprovador</label><input type="text" id="nova-email-aprov"></div>
+      <div class="fg full" style="grid-column:1/-1"><label class="lbl">Aprovador Responsável</label>
+        <select id="nova-aprov-sel"><option value="">— selecione o aprovador —</option></select>
+      </div>
     </div>
     <div class="modal-acts">
       <button class="btn btn-outline btn-sm" onclick="NOVA.close()">Cancelar</button>
@@ -5337,6 +5338,27 @@ const NOVA = {
   _fomento: 'embrapii',
   _fomentos: ['embrapii'],
 
+  // Popula o select de aprovadores filtrando por equipe (se informada)
+  _populateAprovSel(filterTeam){
+    const sel = document.getElementById('nova-aprov-sel');
+    if(!sel) return;
+    const allG = APPROVERS.getRegistry().filter(u=>u.ativo!==false);
+    const eq = filterTeam ? String(filterTeam).toUpperCase() : '';
+    const filtered = eq ? allG.filter(g=>String(g.equipe||'').toUpperCase()===eq) : allG;
+    const gestores = filtered.length ? filtered : allG;
+    const curVal = sel.value; // preservar seleção atual se ainda válida
+    sel.innerHTML = '<option value="">— selecione o aprovador —</option>' +
+      gestores.map(u=>`<option value="${esc(u.email)}" data-nome="${esc(u.nome)}">${esc(u.nome)}${u.equipe?' · '+esc(u.equipe.toUpperCase()):''}</option>`).join('');
+    // Restaurar seleção anterior se o aprovador ainda está na lista filtrada
+    if(curVal && gestores.some(g=>g.email===curVal)) sel.value = curVal;
+    // Auto-selecionar se só há um gestor para a equipe
+    else if(gestores.length===1) sel.value = gestores[0].email;
+    if(filtered.length && eq){
+      const hint = document.getElementById('nova-aprov-hint');
+      if(hint) hint.textContent = `(filtrado: ${eq})`;
+    }
+  },
+
   open(){
     this._type = 'direta';
     this._fomento = 'embrapii';
@@ -5344,15 +5366,13 @@ const NOVA = {
     document.getElementById('nova-titulo').value = '';
     document.getElementById('nova-empresa').value = '';
     document.getElementById('nova-duracao').value = 18;
-    
+
     // Auto-fill do usuário logado (Fase 1/5)
     const user = AUTH.currentUser();
     document.getElementById('nova-elab').value = user ? user.nome : '';
     document.getElementById('nova-email-elab').value = user ? user.email : '';
-    document.getElementById('nova-aprov').value = '';
-    document.getElementById('nova-email-aprov').value = '';
-    APPROVERS.fillApproverFields('nova-', user?.equipe_default);
-    
+    this._populateAprovSel(user?.equipe_default || null);
+
     document.getElementById('nova-tipo-proj').value = 'pdi';
     this._renderFomento('pdi');
     this._renderEquipes();
@@ -5373,7 +5393,10 @@ const NOVA = {
     document.getElementById('nova-equipes-block').style.display = t==='mae' ? '' : 'none';
     if(t==='mae'){
       this._renderEquipes();
-      APPROVERS.fillApproverFields('nova-', document.getElementById('nova-equipe-focal')?.value || AUTH.currentUser()?.equipe_default);
+      const focalTeam = document.getElementById('nova-equipe-focal')?.value || AUTH.currentUser()?.equipe_default;
+      this._populateAprovSel(focalTeam);
+    } else {
+      this._populateAprovSel(AUTH.currentUser()?.equipe_default || null);
     }
   },
 
@@ -5430,8 +5453,8 @@ const NOVA = {
     focal.innerHTML = '<option value="">— selecione —</option>' + equipes.map(e=>`<option value="${e}"${current===e?' selected':''}>${e}</option>`).join('');
     if(equipes.length===1) focal.value = equipes[0];
     else if(current && !equipes.includes(current)) focal.value = '';
-    focal.onchange = () => APPROVERS.fillApproverFields('nova-', focal.value);
-    if(focal.value) APPROVERS.fillApproverFields('nova-', focal.value);
+    focal.onchange = () => NOVA._populateAprovSel(focal.value);
+    if(focal.value) NOVA._populateAprovSel(focal.value);
   },
 
   create(){
@@ -5446,8 +5469,9 @@ const NOVA = {
     const tipo_proposta = this._type;
     const elab     = document.getElementById('nova-elab').value.trim();
     const emailElab= document.getElementById('nova-email-elab').value.trim();
-    const aprov    = document.getElementById('nova-aprov').value.trim();
-    const emailAprov= document.getElementById('nova-email-aprov').value.trim();
+    const _aprovSel  = document.getElementById('nova-aprov-sel');
+    const emailAprov = (_aprovSel?.value || '').trim();
+    const aprov      = (_aprovSel?.selectedOptions?.[0]?.dataset?.nome || '').trim();
 
     const checked = tipo_proposta === 'mae' ? this._selectedEquipes() : [];
     const equipe_focal = tipo_proposta === 'mae' ? (document.getElementById('nova-equipe-focal').value || null) : null;
