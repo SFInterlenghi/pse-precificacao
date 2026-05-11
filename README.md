@@ -20,7 +20,7 @@ Aplicação single-file HTML auto-contida (~395 KB). Todo o CSS, HTML e JavaScri
 
 ## Como usar
 
-1. Abra `pse_v26_codex_revision_cleanup.html` em qualquer browser moderno (Chrome / Edge)
+1. Abra `pse_v27_codex_validation_bar.html` em qualquer browser moderno (Chrome / Edge)
 2. Carregue o arquivo `ISIBF_DB.json` (banco de dados local — **não versionado**)
 3. Faça login com seu e-mail corporativo
 
@@ -29,7 +29,8 @@ Aplicação single-file HTML auto-contida (~395 KB). Todo o CSS, HTML e JavaScri
 ## Estrutura do repositório
 
 ```
-pse_v26_codex_revision_cleanup.html  ← app atual (limpeza do ciclo de revisão)
+pse_v27_codex_validation_bar.html    ← app atual (barra de validações detalhada e ajuste HH eco)
+pse_v26_codex_revision_cleanup.html  ← base Codex anterior
 pse_v25_codex_revision_cycle.html    ← base anterior Codex
 pse_v24_codex_revision_tracking.html ← base Codex anterior
 pse_v23_codex_beta_fixes.html        ← base Codex anterior
@@ -38,7 +39,8 @@ c-system.css                       ← design system (tokens, componentes)
 C-premium.html                     ← protótipo visual de referência
 landing.html                       ← protótipo da tela de login
 HANDOVER.md                        ← regras de design e constraints invioláveis
-IMPLEMENTATION_LOG_CODEX_V26.md    ← log de implementação mais recente
+IMPLEMENTATION_LOG_CODEX_V27.md    ← log de implementação mais recente
+IMPLEMENTATION_LOG_CODEX_V26.md    ← log anterior Codex
 IMPLEMENTATION_LOG_CODEX_V25.md    ← log anterior Codex
 IMPLEMENTATION_LOG_CODEX_V24.md    ← log anterior Codex
 IMPLEMENTATION_LOG_CODEX_V23.md    ← log anterior Codex
@@ -61,6 +63,7 @@ Ver `HANDOVER.md` para a lista completa. Resumo:
 
 | Versão | Arquivo | Descrição |
 |--------|---------|-----------|
+| v27 | `pse_v27_codex_validation_bar.html` | Barra de validações expandida com detalhes e botão HH eco some após resolver déficit |
 | v26 | `pse_v26_codex_revision_cleanup.html` | Limpeza: sem `_revN`, diff só após envio e equipes no menu acesso |
 | v25 | `pse_v25_codex_revision_cycle.html` | Ciclo completo: base de aprovação, aceitar/rejeitar diff e reenviar |
 | v24 | `pse_v24_codex_revision_tracking.html` | Hotfix: controle de alterações em subpropostas editadas por gestor/LT |
