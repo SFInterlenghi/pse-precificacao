@@ -89,3 +89,12 @@ Follow-up items:
 - Manual Excel test with a mother proposal containing at least two linked team subproposals.
 - Verify workbook opens without repair warning in desktop Excel.
 - Verify totals against app/sidebar and `TEAM.calcConsolidado(id_mae)` where applicable.
+
+Additional v030 seed/default cleanup:
+- Added `data/seed/ISIBF_DB_v030_virgem.json` as an official empty seed DB with zero visible proposals.
+- Seed keeps the existing reagent catalog and adds 19 cargo/HH reference rows plus 59 equipment/HM reference rows.
+- Equipment/HM rows were also added under `price_catalog.equip` with hourly fields (`hm`, `custo_hora`, `valor_unitario`, `unidade: h`).
+- Added `.gitignore` exception only for the official seed file; local working DB files remain ignored.
+- Added the supplied cargo reference rows to the v030 HTML role options while preserving legacy role ids for old proposals.
+- New Pessoal Técnico and Pessoal Administrativo rows now start with empty cargo, months, and hours instead of prefilled defaults.
+- No calculation formula was changed.

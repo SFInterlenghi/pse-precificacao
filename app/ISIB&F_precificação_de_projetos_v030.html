@@ -3225,6 +3225,25 @@ const DATA = {
     aneel:        {label:'ANEEL',         cls:'aneel'},
   },
   ptec_roles:[
+    {id:'gerente', label:'Gerente', sal:37348.96, horas_mes:176, hh:212.21},
+    {id:'pesquisador_chefe', label:'Pesquisador Chefe', sal:26068.24, horas_mes:88, hh:296.23},
+    {id:'coordenador', label:'Coordenador', sal:23138.72, horas_mes:176, hh:131.47},
+    {id:'pesquisador_lider', label:'Pesquisador Líder', sal:17765.44, horas_mes:176, hh:100.94},
+    {id:'analista_projeto', label:'Analista de Projeto', sal:11959.20, horas_mes:176, hh:67.95},
+    {id:'pesquisador_especialista_i', label:'Pesquisador Especialista I', sal:17765.44, horas_mes:176, hh:100.94},
+    {id:'consultor_pesquisador_iii', label:'Consultor Pesquisador III', sal:14402.08, horas_mes:176, hh:81.83},
+    {id:'consultor_pesquisador_ii', label:'Consultor Pesquisador II', sal:11959.20, horas_mes:176, hh:67.95},
+    {id:'consultor_pesquisador_i', label:'Consultor Pesquisador I', sal:10853.92, horas_mes:176, hh:61.67},
+    {id:'analista_processos', label:'Analista de Processos', sal:10068.96, horas_mes:176, hh:57.21},
+    {id:'assistente_tecnico_ref', label:'Assistente Técnico', sal:7073.44, horas_mes:176, hh:40.19},
+    {id:'estagiario', label:'Estagiário', sal:1353.00, horas_mes:132, hh:10.25},
+    {id:'bolsista_vii', label:'Bolsista VII', sal:10000.00, horas_mes:176, hh:56.81},
+    {id:'bolsista_vi', label:'Bolsista VI', sal:8000.00, horas_mes:176, hh:45.45},
+    {id:'bolsista_v', label:'Bolsista V', sal:7000.00, horas_mes:176, hh:39.77},
+    {id:'bolsista_iv', label:'Bolsista IV', sal:6000.00, horas_mes:176, hh:34.09},
+    {id:'bolsista_iii', label:'Bolsista III', sal:5000.00, horas_mes:176, hh:28.40},
+    {id:'bolsista_ii', label:'Bolsista II', sal:4500.00, horas_mes:176, hh:25.56},
+    {id:'bolsista_i', label:'Bolsista I', sal:3500.00, horas_mes:176, hh:19.88},
     {id:'ps',  label:'Pesquisador Sênior',  sal:25000},
     {id:'pp',  label:'Pesquisador Pleno',   sal:18000},
     {id:'pj',  label:'Pesquisador Júnior',  sal:11000},
@@ -3238,6 +3257,11 @@ const DATA = {
     {id:'bte', label:'Bolsista Técnico',    sal:1000 },
   ],
   padm_roles:[
+    {id:'gerente', label:'Gerente', sal:37348.96, horas_mes:176, hh:212.21},
+    {id:'coordenador', label:'Coordenador', sal:23138.72, horas_mes:176, hh:131.47},
+    {id:'analista_projeto', label:'Analista de Projeto', sal:11959.20, horas_mes:176, hh:67.95},
+    {id:'analista_processos', label:'Analista de Processos', sal:10068.96, horas_mes:176, hh:57.21},
+    {id:'assistente_tecnico_ref', label:'Assistente Técnico', sal:7073.44, horas_mes:176, hh:40.19},
     {id:'gl', label:'Gerente / Pesquisador Líder',  sal:30000},
     {id:'cp', label:'Coordenador de Projeto',        sal:22000},
     {id:'as', label:'Analista Sênior',               sal:16000},
@@ -3970,7 +3994,7 @@ const VAL={
 const PTEC={
   add(){
     DB.maybeAutoRevisionSnapshot();
-    const item = {id:STATE.uid(),nome:'',cargo:'pp',horas:200,meses:STATE.meta.duracao,enc:true, ict_pub:false, economico:false};
+    const item = {id:STATE.uid(),nome:'',cargo:'',horas:null,meses:null,enc:true, ict_pub:false, economico:false};
     STATE.ptec.push(item);
     AUDIT.log('edicao', 'ptec', item.id, `Adicionou item em Pessoal Técnico`);
     this.render();UI.afterChange();
@@ -4032,7 +4056,7 @@ const PTEC={
       const maxH = (isPetrobras && r.ict_pub) ? 88 : DATA.MAX_H_MES;
       const over=hMes>maxH; const overTeto=isANP&&sal>DATA.anp_teto;
       const fteCls=over||overTeto?'fte-err':fte>=0.85?'fte-warn':'fte-ok'; const trCls=over||overTeto?'tr-err':'';
-      const opts=DATA.ptec_roles.map(ro=>`<option value="${ro.id}"${ro.id===r.cargo?' selected':''}>${ro.label}</option>`).join('');
+      const opts=`<option value=""${!r.cargo?' selected':''}>Selecione</option>`+DATA.ptec_roles.map(ro=>`<option value="${ro.id}"${ro.id===r.cargo?' selected':''}>${ro.label}</option>`).join('');
       // Track changes
       const inRev=REVISION.isRevisionMode();
       const isAdded=inRev&&REVISION.isItemAdded('ptec',r.id);
@@ -4044,8 +4068,8 @@ const PTEC={
         <td class="ptbl-name"><input type="text" value="${esc(r.nome)}" placeholder="Nome" onchange="PTEC.upd('${r.id}','nome',this.value)"></td>
         <td class="ptbl-sel"><select onchange="PTEC.upd('${r.id}','cargo',this.value)">${opts}</select></td>
         <td class="ptbl-sal">${fmt_r(sal)}</td>
-        <td class="ptbl-num"><input type="number" value="${r.meses||STATE.meta.duracao}" min="1" max="${STATE.meta.duracao}" onchange="PTEC.upd('${r.id}','meses',+this.value)"></td>
-        <td class="ptbl-num"><input type="number" value="${r.horas||0}" min="0" onchange="PTEC.upd('${r.id}','horas',+this.value)"></td>
+        <td class="ptbl-num"><input type="number" value="${r.meses ?? ''}" min="1" max="${STATE.meta.duracao}" placeholder="meses" onchange="PTEC.upd('${r.id}','meses',this.value===''?null:+this.value)"></td>
+        <td class="ptbl-num"><input type="number" value="${r.horas ?? ''}" min="0" placeholder="horas" onchange="PTEC.upd('${r.id}','horas',this.value===''?null:+this.value)"></td>
         <td style="text-align:center"><span class="fte-badge ${fteCls}">${fmt_pct(fte)} · ${hMes.toFixed(0)}h/m</span></td>
         <td class="ptbl-sel">
           <select style="margin-bottom:3px;width:100%" onchange="PTEC.upd('${r.id}','enc',this.value==='true')">
@@ -4159,7 +4183,7 @@ const PADM={
   add(){
     if(STATE.meta.tipo_proposta==='equipe') return toast('Gestão do projeto só pode ser definida na Proposta Mãe.','warn');
     DB.maybeAutoRevisionSnapshot();
-    const item = {id:STATE.uid(),nome:'',cargo:'ap',horas:100,meses:STATE.meta.duracao,enc:true, ict_pub:false, economico:false};
+    const item = {id:STATE.uid(),nome:'',cargo:'',horas:null,meses:null,enc:true, ict_pub:false, economico:false};
     STATE.padm.push(item);
     AUDIT.log('edicao', 'padm', item.id, 'Adicionou item em Pessoal Administrativo');
     this.render();UI.afterChange();
@@ -4195,7 +4219,7 @@ const PADM={
       r.economico?subEco+=tot:subFin+=tot; const fte=CALC.fte(r); const hMes=(r.horas||0)/(r.meses||1);
       const maxH = (isPetrobras && r.ict_pub) ? 88 : DATA.MAX_H_MES; const over=hMes>maxH; const overTeto=isANP&&sal>DATA.anp_teto;
       const atFull=fte>=0.99&&!over; const fteCls=over||overTeto?'fte-err':fte>=0.85?'fte-warn':'fte-ok'; const trCls=over||overTeto?'tr-err':atFull?'tr-warn':'';
-      const opts=DATA.padm_roles.map(ro=>`<option value="${ro.id}"${ro.id===r.cargo?' selected':''}>${ro.label}</option>`).join('');
+      const opts=`<option value=""${!r.cargo?' selected':''}>Selecione</option>`+DATA.padm_roles.map(ro=>`<option value="${ro.id}"${ro.id===r.cargo?' selected':''}>${ro.label}</option>`).join('');
       // Track changes
       const inRev=REVISION.isRevisionMode();
       const isAdded=inRev&&REVISION.isItemAdded('padm',r.id);
@@ -4207,8 +4231,8 @@ const PADM={
         <td class="ptbl-name"><input type="text" value="${esc(r.nome)}" placeholder="Nome" onchange="PADM.upd('${r.id}','nome',this.value)"></td>
         <td class="ptbl-sel"><select onchange="PADM.upd('${r.id}','cargo',this.value)">${opts}</select></td>
         <td class="ptbl-sal">${fmt_r(sal)}</td>
-        <td class="ptbl-num"><input type="number" value="${r.meses||STATE.meta.duracao}" min="1" max="${STATE.meta.duracao}" onchange="PADM.upd('${r.id}','meses',+this.value)"></td>
-        <td class="ptbl-num"><input type="number" value="${r.horas||0}" min="0" onchange="PADM.upd('${r.id}','horas',+this.value)"></td>
+        <td class="ptbl-num"><input type="number" value="${r.meses ?? ''}" min="1" max="${STATE.meta.duracao}" placeholder="meses" onchange="PADM.upd('${r.id}','meses',this.value===''?null:+this.value)"></td>
+        <td class="ptbl-num"><input type="number" value="${r.horas ?? ''}" min="0" placeholder="horas" onchange="PADM.upd('${r.id}','horas',this.value===''?null:+this.value)"></td>
         <td style="text-align:center"><span class="fte-badge ${fteCls}">${fmt_pct(fte)} · ${hMes.toFixed(0)}h/m</span></td>
         <td class="ptbl-sel">
           <select style="margin-bottom:3px;width:100%" onchange="PADM.upd('${r.id}','enc',this.value==='true')">
