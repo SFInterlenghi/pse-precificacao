@@ -104,3 +104,9 @@ HH calculation correction:
 - `CALC.pessoalCusto()` now uses `HH total * horas`; if no explicit HH exists, it derives HH as monthly salary divided by 176h.
 - `CALC.remuneracao()` and `CALC.encargos()` split the loaded total for display using the existing encumbrance percentage, instead of adding charges on top of HH.
 - Economic HH optimizer now uses the same loaded HH total per hour.
+
+Role taxonomy correction:
+- Removed legacy role options from v030.
+- Administrative roles now include only: Gerente, Pesquisador Chefe, Coordenador, Analista de Projeto, Pesquisador Líder.
+- Technical roles now include all remaining roles from the supplied hybrid list.
+- Seed DB reference data now includes explicit `cargos_hh_administrativo` and `cargos_hh_tecnico` arrays.
