@@ -6550,12 +6550,21 @@ const FILE_DB = {
     DB._data.filename = this._fileName || OFFICIAL_DB_FILENAME;
     DB._loadedVersion = DB._data.db_version || DB._data.db_revision || 1;
     DB._captureLoadedSnapshot();
-    AUTH.loadUsers(DB._data.users||{});
+    AUTH._users = DB._data.users || {};
     DB.renderList(); DB.renderStats();
     const b=document.getElementById('btn-backup-db'); if(b) b.style.display='';
     UI.renderAll();
     this._loadedAt = Date.now();
-    this.setStatus('DB sincronizado conectado','ok');
+    const nProps = Object.keys(DB._data.proposals||{}).length;
+    const nUsers = Object.keys(DB._data.users||{}).length;
+    const rev = DB._data.db_revision || DB._data.db_version || 1;
+    this.setStatus(`DB sincronizado: ${nProps} proposta${nProps!==1?'s':''}`,'ok');
+    const stat=document.getElementById('landing-db-status');
+    if(stat) stat.innerHTML = `<strong style="color:var(--pos)">${esc(this._fileName || OFFICIAL_DB_FILENAME)}</strong> · ${nProps} proposta${nProps!==1?'s':''} · ${nUsers} usuário${nUsers!==1?'s':''} · rev ${rev}`;
+    const btn=document.getElementById('landing-load-btn');
+    if(btn){ btn.style.background='var(--pos-soft)'; btn.style.color='var(--pos)'; btn.style.borderColor='var(--pos-border)'; }
+    const block=document.getElementById('lnd-db-status-block');
+    if(block) block.classList.add('loaded');
     if(showToast) toast(`DB sincronizado carregado: ${Object.keys(DB._data.proposals||{}).length} propostas`, 'ok', 7000);
     return db;
   },
@@ -6582,7 +6591,7 @@ const FILE_DB = {
     rec.atualizado_em = rec.updated_at;
     return rec;
   },
-  async saveWithReloadMerge(reason='Salvar no arquivo sincronizado'){
+  async saveWithReloadMerge(reason='Salvar no arquivo sincronizado', opts={}){
     if(!this._handle) throw new Error('Arquivo DB sincronizado não conectado.');
     DB._ensureDB();
     if(STATE.proposal?.id){
@@ -6622,13 +6631,14 @@ const FILE_DB = {
     remoteDb.last_saved_by = user;
     remoteDb.storage_mode = 'onedrive_file';
 
-    await this.writeJson(remoteDb);
+    const makeBackup = opts.backup === true;
+    await this.writeJson(remoteDb, {skipBackup: !makeBackup});
     DB._data = remoteDb;
     DB._loadedVersion = remoteDb.db_version || remoteDb.db_revision || DB._loadedVersion;
     DB._captureLoadedSnapshot();
     DB.clearDirty();
     this.setStatus('Salvo no arquivo sincronizado','ok');
-    toast(`${reason}: salvo no arquivo sincronizado e backup local gerado.`, 'ok', 7000);
+    toast(makeBackup ? `${reason}: salvo no arquivo sincronizado e backup local gerado.` : `${reason}: salvo no arquivo sincronizado.`, 'ok', 7000);
     DB.renderList(); DB.renderStats(); DB._updateWorkflowBar();
     return true;
   },
@@ -6674,9 +6684,9 @@ const DB = {
     });
     return changed;
   },
-  async saveCurrentToSharedDb(reason='Salvar'){
+  async saveCurrentToSharedDb(reason='Salvar', opts={}){
     if(FILE_DB.isActive()){
-      try{ return await FILE_DB.saveWithReloadMerge(reason); }
+      try{ return await FILE_DB.saveWithReloadMerge(reason, opts); }
       catch(err){
         toast(`Falha ao salvar no arquivo sincronizado: ${err.message||err}. Baixe um backup local para preservar as alterações.`, 'err', 9000);
         return false;
@@ -6924,7 +6934,7 @@ const DB = {
     if(!STATE.proposal.id && Object.keys(this._data?.proposals || {}).length === 0){ toast('Salve a proposta primeiro.','err'); return; }
     if(FILE_DB.isActive()){
       if(STATE.proposal.id) this.saveCurrentToDb('Atualizar DB', {skipRemote:true});
-      return await this.saveCurrentToSharedDb('Atualizar DB');
+      return await this.saveCurrentToSharedDb('Atualizar DB', {backup:true});
     }
     if(SPDB.isConfigured()){
       if(STATE.proposal.id) this.saveCurrentToDb('Atualizar DB', {skipRemote:true});

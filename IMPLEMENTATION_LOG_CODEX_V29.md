@@ -63,3 +63,10 @@ Follow-up fix:
 - Unsupported browser/context now shows a visible alert instead of only a hidden/header status.
 - `FILE_DB` is explicitly exposed on `window` for inline handlers.
 - Synced DB buttons were marked `type="button"` to avoid any implicit form behavior.
+
+Follow-up sync UX/persistence fix:
+- `FILE_DB.loadFromHandle()` no longer calls `AUTH.loadUsers()` because that reopened the legacy auth modal over the landing login.
+- Landing now shows synced filename, proposal count, user count, and DB revision after a synced DB is connected.
+- OneDrive synced saves still reload the latest JSON before writing.
+- Local backup after OneDrive synced save is now generated only when the caller requests it, currently `Atualizar DB`.
+- Creating/saving a new V0 proposal updates the synced JSON without forcing an immediate backup download.
