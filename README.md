@@ -93,6 +93,7 @@ Esse arquivo contem usuarios, propostas e dados sensiveis. Ele nao deve ser vers
 - Nao refatorar os namespaces principais sem necessidade: `CALC`, `VAL`, `EXPORT`, `REVISION`, `AUTH`, `PRICE_CAT`.
 - Preservar modo local/manual JSON.
 - Preservar backup local.
+- Qualquer modificação e input é bem vinda, para tal podem criar um branch ou um fork do código original. Não realizem commit no main antes de verificar a estabilidade e validar com a equipe
 
 ## Historico
 
