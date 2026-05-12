@@ -57,3 +57,9 @@ Quick checks:
 - Core namespaces remain present.
 - No tracked repository JSON/DB files modified.
 - Node syntax check could not run in this environment because `node.exe` returned access denied, even with escalation.
+
+Follow-up fix:
+- The synced DB action now updates the landing-page DB status before opening the picker.
+- Unsupported browser/context now shows a visible alert instead of only a hidden/header status.
+- `FILE_DB` is explicitly exposed on `window` for inline handlers.
+- Synced DB buttons were marked `type="button"` to avoid any implicit form behavior.
