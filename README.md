@@ -2,20 +2,20 @@
 
 Ferramenta interna do Instituto SENAI de Inovacao em Biossinteticos & Fibras (ISIB&F / Firjan) para montagem, validacao e acompanhamento de propostas de PD&I.
 
-## Versao estavel
+## Execucao
 
-Arquivo atual em producao/beta estavel:
+Arquivo atual da ferramenta:
 
-`ISIB&F_precificação_de_projetos_v029.html`
+`app/ISIB&F_precificação_de_projetos_v029.html`
 
-Esta versao usa um JSON compartilhado sincronizado pelo OneDrive/SharePoint, escolhido pelo usuario no navegador.
+Abra no Edge ou Chrome para usar o modo `DB sincronizado`.
 
-## Como usar
+## Como usar o DB sincronizado
 
-1. Abra `ISIB&F_precificação_de_projetos_v029.html` no Edge ou Chrome.
+1. Abra `app/ISIB&F_precificação_de_projetos_v029.html`.
 2. Clique em `DB sincronizado`.
 3. Selecione o arquivo oficial `ISIBF_DB.json` na pasta OneDrive sincronizada.
-4. Confirme que a landing mostra nome do arquivo, numero de propostas, usuarios e revisao do DB.
+4. Confira na landing se aparecem nome do arquivo, numero de propostas, usuarios e revisao do DB.
 5. Informe seu e-mail corporativo cadastrado no DB.
 6. Edite/crie propostas normalmente.
 7. Use `Atualizar DB` para gravar no JSON sincronizado e gerar backup local.
@@ -28,7 +28,49 @@ O arquivo de banco de dados oficial e:
 
 `ISIBF_DB.json`
 
-Esse arquivo contem usuarios, propostas e dados sensiveis. Ele nao deve ser versionado no Git.
+Esse arquivo contem usuarios, propostas e dados sensiveis. Ele nao deve ser versionado no Git. Ele deve ficar na pasta sincronizada pelo OneDrive/SharePoint.
+
+## Estrutura do repositorio
+
+```text
+/
+  README.md
+  .gitignore
+
+  app/
+    ISIB&F_precificação_de_projetos_v029.html
+
+  logs/
+    IMPLEMENTATION_LOG_CURRENT.md
+
+  docs/
+    HANDOVER.md
+
+  docs/design/
+    C-premium.html
+    c-system.css
+    landing.html
+
+  data/catalog/
+    catalogo_default_reagentes.json
+    precos_default_reagentes_pdi_2026.xlsx
+
+  archive/versions/
+    pse_v22_claude_continuation.html
+    pse_v12.html
+
+  archive/logs/
+    IMPLEMENTATION_LOG_CLAUDE_V22.md
+```
+
+## Arquivos principais
+
+- App atual: `app/ISIB&F_precificação_de_projetos_v029.html`
+- Log atual/consolidado: `logs/IMPLEMENTATION_LOG_CURRENT.md`
+- Regras e constraints: `docs/HANDOVER.md`
+- Catalogo real de reagentes: `data/catalog/catalogo_default_reagentes.json`
+- Fonte original de precos: `data/catalog/precos_default_reagentes_pdi_2026.xlsx`
+- Historico arquivado: `archive/`
 
 ## Funcionalidades principais
 
@@ -44,20 +86,6 @@ Esse arquivo contem usuarios, propostas e dados sensiveis. Ele nao deve ser vers
 - Deteccao conservadora de conflito na mesma proposta.
 - Backup local preservado no fluxo `Atualizar DB`.
 
-## Estrutura relevante
-
-```
-ISIB&F_precificação_de_projetos_v029.html  <- app atual
-IMPLEMENTATION_LOG_CODEX_V29.md            <- resumo consolidado da branch promovida para main
-c-system.css                               <- design system de referencia
-C-premium.html                             <- prototipo premium de referencia
-landing.html                               <- prototipo da landing/login
-HANDOVER.md                                <- regras de design e constraints
-catalogo_default_reagentes.json            <- catalogo real de reagentes em JSON
-precos_default_reagentes_pdi_2026.xlsx     <- fonte original dos precos
-outdated/pse_v12.html                      <- baseline historico
-```
-
 ## Regras de desenvolvimento
 
 - Nao commitar `ISIBF_DB.json`, backups ou outros DBs reais.
@@ -70,6 +98,6 @@ outdated/pse_v12.html                      <- baseline historico
 
 | Versao | Arquivo | Status |
 | --- | --- | --- |
-| v29 | `ISIB&F_precificação_de_projetos_v029.html` | Atual estavel |
-| v22 | `pse_v22_claude_continuation.html` | Historico no main inicial |
-| v12 | `outdated/pse_v12.html` | Baseline original |
+| v29 | `app/ISIB&F_precificação_de_projetos_v029.html` | Atual estavel |
+| v22 | `archive/versions/pse_v22_claude_continuation.html` | Historico |
+| v12 | `archive/versions/pse_v12.html` | Baseline original |

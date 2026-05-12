@@ -1,16 +1,19 @@
-# ── Bancos de dados (dados sensíveis — nunca versionar) ───────────
+# Sensitive/local databases - never version
 db_real_v0.json
 ISIBF_DB*.json
+*_DB.json
+*_backup_*.json
 
-# ── Configurações locais do Claude Code ───────────────────────────
+# Local assistant/tooling config
 .claude/
 
-# ── Versões intermediárias superadas (ficam só local) ─────────────
+# Superseded local scratch versions
 pse_v18_*.html
 pse_v19_*.html
 pse_v20_*.html
 pse_v21_*.html
 
+# Old local patch/scratch artifacts
 outdated/db_test_v12.json
 outdated/pse_v13_*.html
 outdated/pse_v14_*.html
@@ -31,11 +34,11 @@ outdated/IMPLEMENTATION_LOG_V15.md
 outdated/IMPLEMENTATION_LOG_CODEX_V16.md
 outdated/IMPLEMENTATION_LOG_CODEX_V17.md
 
-# Logs de versões superadas
+# Superseded logs that should remain local if generated again
 IMPLEMENTATION_LOG_CODEX_V18.md
 IMPLEMENTATION_LOG_CODEX_V19.md
 IMPLEMENTATION_LOG_CODEX_V20.md
 
-# ── Windows / OS ──────────────────────────────────────────────────
+# Windows / OS
 Thumbs.db
 desktop.ini
