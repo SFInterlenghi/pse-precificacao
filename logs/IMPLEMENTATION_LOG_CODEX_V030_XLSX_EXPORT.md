@@ -98,3 +98,9 @@ Additional v030 seed/default cleanup:
 - Added the supplied cargo reference rows to the v030 HTML role options while preserving legacy role ids for old proposals.
 - New Pessoal Técnico and Pessoal Administrativo rows now start with empty cargo, months, and hours instead of prefilled defaults.
 - No calculation formula was changed.
+
+HH calculation correction:
+- Updated personnel cost semantics so configured HH is treated as the total loaded hourly cost.
+- `CALC.pessoalCusto()` now uses `HH total * horas`; if no explicit HH exists, it derives HH as monthly salary divided by 176h.
+- `CALC.remuneracao()` and `CALC.encargos()` split the loaded total for display using the existing encumbrance percentage, instead of adding charges on top of HH.
+- Economic HH optimizer now uses the same loaded HH total per hour.

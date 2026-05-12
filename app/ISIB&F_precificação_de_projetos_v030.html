@@ -3713,11 +3713,23 @@ const META={
 // CALC
 // ============================================================
 const CALC={
-  salario(cargo,cat){ return (cat==='ptec'?DATA.ptec_roles:DATA.padm_roles).find(r=>r.id===cargo)?.sal||0; },
+  role(cargo,cat){ return (cat==='ptec'?DATA.ptec_roles:DATA.padm_roles).find(r=>r.id===cargo) || null; },
+  salario(cargo,cat){ return this.role(cargo,cat)?.sal||0; },
+  encPct(cat){ return cat==='ptec'?DATA.enc_tec:DATA.enc_adm; },
+  hhTotal(cargo,cat){
+    const role = this.role(cargo,cat);
+    if(!role) return 0;
+    if(role.hh !== undefined && role.hh !== null) return +(role.hh||0);
+    return (role.sal||0)/DATA.MAX_H_MES;
+  },
   fte(r){ return ((r.horas||0)/(r.meses||1))/DATA.MAX_H_MES; },
-  remuneracao(r,cat){ return (this.salario(r.cargo,cat)/DATA.HORAS_ANO)*(r.horas||0); },
-  encargos(r,cat){ if(!r.enc) return 0; return (this.salario(r.cargo,cat)*(cat==='ptec'?DATA.enc_tec:DATA.enc_adm)/DATA.HORAS_ANO)*(r.horas||0); },
-  pessoalCusto(r,cat){ return this.remuneracao(r,cat)+this.encargos(r,cat); },
+  pessoalCusto(r,cat){ return this.hhTotal(r.cargo,cat)*(r.horas||0); },
+  remuneracao(r,cat){
+    const total = this.pessoalCusto(r,cat);
+    if(!r.enc) return total;
+    return total/(1+this.encPct(cat));
+  },
+  encargos(r,cat){ if(!r.enc) return 0; return this.pessoalCusto(r,cat)-this.remuneracao(r,cat); },
   equipCusto(e){ return (((e.cvc||0)+(e.cm||0)+((e.val_aq||0)*0.10))/1200)*(e.horas_proj||0); },
   softCusto(s){
     if(s.valor !== undefined || s.custo_hora !== undefined || s.horas_uso !== undefined){
@@ -3939,7 +3951,7 @@ const VAL={
     // Para cada cargo CLT, calcular horas necessárias (com encargos) e número de pessoas
     let best = null;
     cltRoles.forEach(role => {
-      const ecoPerHour = (role.sal / DATA.HORAS_ANO) * (1 + DATA.enc_tec);
+      const ecoPerHour = CALC.hhTotal(role.id, 'ptec');
       const hoursNeeded = Math.ceil(deficit / ecoPerHour);
       const nPeople = Math.ceil(hoursNeeded / maxHPerPerson);
       if(!best || nPeople < best.nPeople || (nPeople === best.nPeople && role.sal > best.role.sal)){
