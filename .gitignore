@@ -3,6 +3,7 @@ db_real_v0.json
 ISIBF_DB*.json
 *_DB.json
 *_backup_*.json
+!data/seed/ISIBF_DB_v030_virgem.json
 
 # Local assistant/tooling config
 .claude/
