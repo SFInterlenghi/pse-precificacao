@@ -143,9 +143,6 @@ Nao use esse arquivo como DB vivo se ja existir um `ISIBF_DB.json` em uso.
   .gitignore
 
   app/
-    ISIB&F_precificação_de_projetos_v029.html
-    ISIB&F_precificação_de_projetos_v030.html
-    ISIB&F_precificação_de_projetos_v031.html
     ISIB&F_precificação_de_projetos_v032.html
 
   data/
@@ -174,7 +171,34 @@ Nao use esse arquivo como DB vivo se ja existir um `ISIBF_DB.json` em uso.
       pse_v22_claude_continuation.html
     logs/
       IMPLEMENTATION_LOG_CLAUDE_V22.md
+    outdated/
+      versions/
+        ISIB&F_precificação_de_projetos_v028.html
+        ISIB&F_precificação_de_projetos_v029.html
+        ISIB&F_precificação_de_projetos_v029_app-copy.html
+        ISIB&F_precificação_de_projetos_v030.html
+        ISIB&F_precificação_de_projetos_v031.html
+        pse_v23_codex_beta_fixes.html
+        pse_v24_codex_revision_tracking.html
+        pse_v25_codex_revision_cycle.html
+        pse_v26_codex_revision_cleanup.html
+        pse_v27_codex_validation_bar.html
+        pse_v28_embrapii_rules.html
+      logs/
+        IMPLEMENTATION_LOG_CODEX_AUTH.md
+        IMPLEMENTATION_LOG_CODEX_V23.md
+        IMPLEMENTATION_LOG_CODEX_V24.md
+        IMPLEMENTATION_LOG_CODEX_V25.md
+        IMPLEMENTATION_LOG_CODEX_V26.md
+        IMPLEMENTATION_LOG_CODEX_V27.md
+        IMPLEMENTATION_LOG_CODEX_V28.md
+        IMPLEMENTATION_LOG_CODEX_V29.md
 ```
+
+Na branch `dev`, o diretorio `app/` fica propositalmente enxuto: somente a
+versao recente de continuacao (`v032`) permanece como executavel principal.
+Versoes intermediarias e experimentais ficam em `archive/outdated/` para
+consulta historica sem poluir o ponto de entrada do desenvolvimento.
 
 ## Funcionalidades principais
 
@@ -454,9 +478,9 @@ bloqueiam, mas entram na aba de validacoes.
 | Versao | Arquivo | Status | Resumo |
 | --- | --- | --- | --- |
 | v032 | `app/ISIB&F_precificação_de_projetos_v032.html` | Estavel atual | Ajustes de validacao por escopo de projeto, indiretos sem fomento, export XLSX v032 e seletor HH legacy/atual. |
-| v031 | `app/ISIB&F_precificação_de_projetos_v031.html` | Historico recente | Catalogos para Software, Uso de Equipamentos e Material Permanente; uso de equipamento por HM conhecido. |
-| v030 | `app/ISIB&F_precificação_de_projetos_v030.html` | Historico recente | Nova exportacao XLSX executiva com ExcelJS; seed virgem oficial; limpeza de defaults de pessoal; correcao de HH carregado. |
-| v029 | `app/ISIB&F_precificação_de_projetos_v029.html` | Baseline OneDrive | Persistencia em JSON sincronizado via File System Access API. |
+| v031 | `archive/outdated/versions/ISIB&F_precificação_de_projetos_v031.html` | Arquivado em dev | Catalogos para Software, Uso de Equipamentos e Material Permanente; uso de equipamento por HM conhecido. |
+| v030 | `archive/outdated/versions/ISIB&F_precificação_de_projetos_v030.html` | Arquivado em dev | Nova exportacao XLSX executiva com ExcelJS; seed virgem oficial; limpeza de defaults de pessoal; correcao de HH carregado. |
+| v029 | `archive/outdated/versions/ISIB&F_precificação_de_projetos_v029_app-copy.html` | Arquivado em dev | Persistencia em JSON sincronizado via File System Access API. |
 | v022 | `archive/versions/pse_v22_claude_continuation.html` | Arquivado | Versao historica de beta funcional. |
 | v012 | `archive/versions/pse_v12.html` | Arquivado | Baseline original. |
 
