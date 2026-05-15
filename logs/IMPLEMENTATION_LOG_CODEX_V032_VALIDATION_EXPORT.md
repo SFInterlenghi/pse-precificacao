@@ -37,3 +37,18 @@ Saída: app/ISIB&F_precificação_de_projetos_v032.html
 - Aba Pessoal Administrativo ganhou checkbox `usar HH legacy?` para alternar a fonte de cargos/HH.
 - Cálculo de remuneração/encargos/total usa a tabela selecionada na configuração da proposta, com fallback legacy para compatibilidade de propostas antigas.
 - Exportação XLSX também respeita a tabela HH selecionada por proposta/subproposta.
+
+## Ajuste beta pós-apresentação
+- Exportação XLSX endurecida para Chrome: o ExcelJS passa a carregar sob demanda e tenta CDNs alternativos antes de falhar com mensagem clara.
+- Download XLSX mantém o link temporário por mais tempo e dispara o clique de forma mais robusta para evitar falha silenciosa no Chrome.
+- Otimizador HH EMBRAPII passa a calcular déficit econômico pelo consolidado do projeto (`mãe + subpropostas`) usando o mesmo escopo da validação EMBRAPII.
+- Otimizador HH não altera mais os percentuais EP/EB/SN; ele adiciona HH econômico e reavalia a meta consolidada.
+- Botão de otimização desaparece quando a meta econômica consolidada é atendida.
+- Menu do usuário ganhou seção DB com carregar DB local, conectar DB sincronizado, backup local, mesclar DBs, ajuda e desconexão.
+- Botão de workflow `Atualizar DB` foi renomeado para `Backup DB`; ele baixa backup local sem sobrescrever o DB sincronizado.
+- `Salvar` permanece como ação de gravação no DB conectado/sincronizado.
+
+## Checks do ajuste
+- Checagem sintática dos scripts HTML passou.
+- CALC, VAL, EXPORT, REVISION, AUTH e PRICE_CAT permanecem no arquivo.
+- Alteração concentrada em exportação, otimizador econômico e persistência/backup de UI.

@@ -62,6 +62,12 @@ Known limitations:
 - If browser permission to the file handle is lost, the user must reconnect the JSON file with the picker.
 - Detailed conflict UI is not implemented; same-proposal conflicts are blocked and require reload/manual resolution.
 
+V32 beta follow-up:
+- Export XLSX no Chrome foi reforçado com carregamento sob demanda do ExcelJS e CDNs alternativos.
+- Otimizador de HH EMBRAPII agora usa o déficit econômico consolidado da proposta mãe + subpropostas, não apenas itens da mãe.
+- Ação `Atualizar DB` foi convertida em `Backup DB`; `Salvar` é a ação que grava no DB sincronizado.
+- Ações de DB foram expostas também na seção DB do menu do usuário.
+
 Quick checks:
 - Source branch clean before promotion.
 - Target `main` prepared from `origin/main`.

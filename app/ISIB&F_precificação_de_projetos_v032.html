@@ -1771,11 +1771,25 @@ input[type=radio]:checked + .tipo-prop-card .tipo-prop-icon{color:var(--gold-dee
       <button class="btn btn-ghost btn-sm" onclick="REG.open();UI.closeUserMenu()">
       <svg class="icn icn-sm" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
       Regramentos
-    </button>
+      </button>
       <div class="user-menu-sep"></div>
+      <div style="font-size:9px;font-weight:700;color:var(--ink-4);letter-spacing:1.2px;text-transform:uppercase;padding:4px 10px 2px">DB</div>
+      <label class="btn btn-ghost btn-sm" style="cursor:pointer;margin:0">
+        <svg class="icn icn-sm" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        Carregar DB local
+        <input type="file" accept=".json" style="display:none" onchange="DB.loadFile(this);UI.closeUserMenu()">
+      </label>
       <button type="button" class="btn btn-ghost btn-sm" onclick="FILE_DB.connectFile();UI.closeUserMenu()">
         <svg class="icn icn-sm" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>
         Conectar DB sincronizado
+      </button>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="DB.downloadDB('backup');UI.closeUserMenu()">
+        <svg class="icn icn-sm" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+        Backup local
+      </button>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="DB.openMerge();UI.closeUserMenu()">
+        <svg class="icn icn-sm" viewBox="0 0 24 24"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></svg>
+        Mesclar DBs
       </button>
       <button type="button" class="btn btn-ghost btn-sm" onclick="FILE_DB.showHelp();UI.closeUserMenu()">
         <svg class="icn icn-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 1 1 5.8 1c0 2-3 2-3 4"/><path d="M12 17h.01"/></svg>
@@ -3957,11 +3971,13 @@ const VAL={
   // distribui entre N pessoas, minimiza cabeças depois FTE (cargo mais caro vence).
   optimizeEco(){
     if(!FOMENTO.has(STATE.meta,'embrapii')) return toast('Otimização disponível apenas para EMBRAPII.','warn');
+    if(STATE.meta.tipo_proposta==='equipe') return toast('Otimização econômica deve ser feita na proposta mãe ou direta.','warn');
     const calc = CALC.calcAll(STATE); const c = calc.config;
-    const finSemSn = calc.totalFin;
+    const scope = this.embrapiiScope(STATE, calc);
+    const finSemSn = scope.totalFin;
     const totalProj = (c.ep_pct + c.eb_pct) > 0 ? finSemSn / (c.ep_pct + c.eb_pct) : 0;
     const ecoTarget = totalProj * c.sn_pct;
-    const deficit = ecoTarget - calc.totalEco;
+    const deficit = ecoTarget - scope.totalEco;
     if(deficit <= 50){ toast('Aporte econômico já suficiente — nenhum HH adicionado.','ok'); return; }
 
     const meses = STATE.meta.duracao || 18;
@@ -4003,23 +4019,11 @@ const VAL={
     }
     AUDIT.log('edicao','ptec',addedIds[0],`Otimização eco: ${best.nPeople}x ${best.role.label} (${best.hoursNeeded}h total, CLT)`);
 
-    // Recalcular e atualizar percentuais para refletir nova distribuição real
-    const newCalc = CALC.calcAll(STATE);
-    const newTotal = newCalc.totalFin + newCalc.totalEco;
-    if(newTotal > 0){
-      const rawSn = newCalc.totalEco / newTotal;
-      const newSn = Math.max(0, Math.min(0.8, rawSn));
-      const remaining = Math.max(0, 1.0 - newSn);
-      const epFrac = (c.ep_pct + c.eb_pct) > 0 ? c.ep_pct / (c.ep_pct + c.eb_pct) : 0.56;
-      const newEp = remaining * epFrac;
-      const newEb = remaining - newEp;
-      STATE.config.sn_pct = newSn;
-      STATE.config.ep_pct = newEp;
-      STATE.config.eb_pct = newEb;
-    }
-
+    const afterScope = this.embrapiiScope(STATE, CALC.calcAll(STATE));
+    const afterTotalProj = (c.ep_pct + c.eb_pct) > 0 ? afterScope.totalFin / (c.ep_pct + c.eb_pct) : 0;
+    const afterDiff = (afterTotalProj * c.sn_pct) - afterScope.totalEco;
     UI.renderAll(); PTEC.render();
-    toast(`✅ ${best.nPeople} pessoa(s) de ${best.role.label} adicionadas (${best.hoursNeeded}h total, CLT, econômico). EP/EB/SN atualizados.`,'ok');
+    toast(`${best.nPeople} pessoa(s) de ${best.role.label} adicionadas (${best.hoursNeeded}h total, CLT, econômico). ${afterDiff>50?`Ainda faltam ${fmt_r(afterDiff)} no consolidado.`:'Meta econômica consolidada atendida.'}`, afterDiff>50?'warn':'ok', 8000);
   }
 };
 
@@ -5005,13 +5009,13 @@ function renderResume(){
       <div class="sb-total"><span class="sb-total-lbl">Total do Projeto</span>
       <span class="sb-total-val">${sb(calc.total)}</span></div>`; }
 
-    // ── EMBRAPII distribution (logic unchanged) ────────────────
+    // ── EMBRAPII distribution ─────────────────────────────────
     if(calc.dist&&FOMENTO.has(STATE.meta,'embrapii')&&STATE.meta.tipo_proposta!=='equipe'){
-      const c=calc.config; const finSemSn=calc.totalFin; const totalProj=c.ep_pct+c.eb_pct>0?finSemSn/(c.ep_pct+c.eb_pct):0; const ecoTarget=totalProj*c.sn_pct; const diff=ecoTarget-calc.totalEco;
+      const c=calc.config; const ecoScope=VAL.embrapiiScope(STATE,calc); const finSemSn=ecoScope.totalFin; const ecoAtual=ecoScope.totalEco; const totalProj=c.ep_pct+c.eb_pct>0?finSemSn/(c.ep_pct+c.eb_pct):0; const ecoTarget=totalProj*c.sn_pct; const diff=ecoTarget-ecoAtual;
       let avisoEco=diff>100?`<div style="margin-top:8px;padding:6px 8px;background:var(--neg-soft);color:var(--neg);border:1px solid var(--neg-border);border-radius:3px;font-size:10px;line-height:1.4"><strong>Faltam ${fmt_r(diff)}</strong> em itens ECONÔMICO para meta ${fmt_pct(c.sn_pct)}.<br><button class="btn btn-xs" style="margin-top:5px;width:100%;background:var(--neg);color:#fff;border:none;padding:4px 6px" onclick="VAL.optimizeEco()">Otimizar HH Técnico</button></div>`
         :diff<-100?`<div style="margin-top:8px;padding:6px 8px;background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn-border);border-radius:3px;font-size:10px;line-height:1.4"><strong>Excesso ${fmt_r(Math.abs(diff))}</strong> acima de ${fmt_pct(c.sn_pct)}.</div>`
         :`<div style="margin-top:8px;padding:6px 8px;background:var(--pos-soft);color:var(--pos);border:1px solid var(--pos-border);border-radius:3px;font-size:10px;font-weight:bold;text-align:center">Cota SN Atingida</div>`;
-      const tier = FOMENTO.embrapiiTier({totalFin:finSemSn,totalEco:calc.totalEco,total:calc.total,config:c});
+      const tier = FOMENTO.embrapiiTier({totalFin:finSemSn,totalEco:ecoAtual,total:finSemSn+ecoAtual,config:c});
       h+=`<div class="sb-section" style="margin-top:14px"><div class="sb-sec-title">Distribuição Meta ${tier.label}</div>
         <div class="dist-grid"><div class="dist-card ep"><div class="dist-card-lbl">EP · Empresa</div><div class="dist-card-val">${sb(totalProj*c.ep_pct)}</div><div class="dist-card-sub">${fmt_pct(c.ep_pct)}</div></div>
         <div class="dist-card eb"><div class="dist-card-lbl">EB · EMBRAPII</div><div class="dist-card-val">${sb(totalProj*c.eb_pct)}</div><div class="dist-card-sub">${fmt_pct(c.eb_pct)}</div></div>
@@ -5738,9 +5742,36 @@ const EXPORT_XLSX_THEME = {
 };
 
 const EXPORT_XLSX_PREMIUM = {
+  excelUrls:[
+    'https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js',
+    'https://unpkg.com/exceljs@4.4.0/dist/exceljs.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js'
+  ],
+  loadScript(src){
+    return new Promise((resolve,reject)=>{
+      const existing = Array.from(document.scripts).find(s=>s.src===src);
+      if(existing && window.ExcelJS) return resolve();
+      const s=document.createElement('script');
+      s.src=src; s.async=true; s.crossOrigin='anonymous';
+      s.onload=()=>resolve();
+      s.onerror=()=>reject(new Error('Falha ao carregar '+src));
+      document.head.appendChild(s);
+    });
+  },
+  async ensureExcelJS(){
+    if(window.ExcelJS) return true;
+    for(const src of this.excelUrls){
+      try{
+        await this.loadScript(src);
+        if(window.ExcelJS) return true;
+      }catch(e){ console.warn(e); }
+    }
+    throw new Error('ExcelJS não carregou. Verifique a conexão com a internet ou liberação dos CDNs e tente novamente.');
+  },
   async run(){
     try{
-      if(!window.ExcelJS) throw new Error('ExcelJS nao carregou. Verifique conexao/CDN e tente novamente.');
+      toast('Gerando XLSX...', 'warn', 3000);
+      await this.ensureExcelJS();
       const reportData = EXPORT_DATA.buildReportData();
       if(reportData.validationSummary.reds.length){
         toast('Corrija os erros criticos antes de exportar.', 'err', 7000);
@@ -5910,8 +5941,11 @@ const EXPORT_XLSX_PREMIUM = {
     const date = new Date().toISOString().slice(0,10);
     const fname = `ISIBF_PSE_Proposta_${this.safeFilePart(data.context.proposalId)}_${this.safeFilePart(data.context.title)}_${date}_v032.xlsx`;
     const url = URL.createObjectURL(blob);
-    const a=document.createElement('a'); a.href=url; a.download=fname; document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url), 2000);
+    const a=document.createElement('a');
+    a.href=url; a.download=fname; a.style.display='none';
+    document.body.appendChild(a);
+    a.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));
+    setTimeout(()=>{ a.remove(); URL.revokeObjectURL(url); }, 10000);
   }
 };
 
@@ -7558,20 +7592,21 @@ const DB = {
   },
 
   async saveAndUpdateDB(){
-    if(!STATE.proposal.id && Object.keys(this._data?.proposals || {}).length === 0){ toast('Salve a proposta primeiro.','err'); return; }
+    if(!STATE.proposal.id && Object.keys(this._data?.proposals || {}).length === 0){ toast('Nenhum DB/proposta disponível para backup.','err'); return; }
+    if(STATE.proposal.id) this.saveCurrentToDb('Backup DB', {skipRemote:true});
+    if(!this._data) return;
     if(FILE_DB.isActive()){
-      if(STATE.proposal.id) this.saveCurrentToDb('Atualizar DB', {skipRemote:true});
-      return await this.saveCurrentToSharedDb('Atualizar DB', {backup:true});
+      FILE_DB.downloadLocalBackup(this._data);
+      toast('Backup local gerado. O DB sincronizado não foi sobrescrito; use Salvar para gravar no arquivo conectado.', 'ok', 7000);
+      return true;
     }
     if(SPDB.isConfigured()){
-      if(STATE.proposal.id) this.saveCurrentToDb('Atualizar DB', {skipRemote:true});
-      return await this.saveCurrentToSharedDb('Atualizar DB');
+      SPDB.downloadLocalBackup(this._data);
+      toast('Backup local gerado. Use Salvar para gravar no DB compartilhado.', 'ok', 7000);
+      return true;
     }
-    if(STATE.proposal.id) this.saveCurrentToDb('Atualizar DB');
-    if(!this._data) return;
-
-    // v10: Open concurrency check modal instead of saving directly
-    CONC.openCheck();
+    this.downloadDB('backup');
+    return true;
   },
 
   _doFinalSave(){
@@ -7806,7 +7841,7 @@ const DB = {
     
     if(p.status!=='aprovado' && canEdit){
       acts += `<button class="btn btn-sm wf-btn-primary" onclick="DB.saveCurrentToDb()">Salvar</button>`;
-      acts += `<button class="btn btn-sm btn-secondary" onclick="DB.saveAndUpdateDB()">Atualizar DB</button>`;
+      acts += `<button class="btn btn-sm btn-secondary" onclick="DB.saveAndUpdateDB()">Backup DB</button>`;
     }
     
     acts += `<button id="btn-hist" class="btn btn-sm btn-outline" onclick="AUDIT.open()">Histórico</button>`;
