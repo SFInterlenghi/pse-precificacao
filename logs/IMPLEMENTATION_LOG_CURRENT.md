@@ -68,6 +68,13 @@ V32 beta follow-up:
 - Ação `Atualizar DB` foi convertida em `Backup DB`; `Salvar` é a ação que grava no DB sincronizado.
 - Ações de DB foram expostas também na seção DB do menu do usuário.
 
+V33 bugfixes:
+- Usuário novo que cria proposta direta passa a editar a própria proposta.
+- Usuário novo fora do cadastro do DB passa a ver a tela inicial com cards.
+- Banner de notificações é limpo na troca/login de usuário.
+- Menu do usuário fecha por clique externo ou Escape.
+- Gestores podem excluir a proposta atual pelo menu do usuário, com confirmação e gravação no DB sincronizado quando conectado.
+
 Quick checks:
 - Source branch clean before promotion.
 - Target `main` prepared from `origin/main`.
