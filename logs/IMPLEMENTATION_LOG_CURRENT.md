@@ -83,6 +83,15 @@ V34 release:
 - Metadados, título HTML e nome do XLSX exportado atualizados para v034.
 - v033 arquivada em `archive/outdated/versions/`.
 
+V35 merge/email follow-up:
+- v034 arquivada em `archive/outdated/versions/`.
+- v035 criada como executavel principal em `app/`.
+- Mesclagem de DBs com conflito de IDs agora normaliza metadados internos (`id_base`, `id_mae`, `tipo_proposta`, `state.meta` e historico).
+- Carregamento do DB aplica reparo leve para propostas diretas sem mae cujo `id_base` apontava para outra proposta.
+- Listagem evita agrupar proposta direta independente como revisao de outra apenas por `revisao_numero > 0`.
+- Modulo `EMAIL_DRAFTS` gera rascunhos editaveis para envio para aprovacao, revisao solicitada e proposta aprovada, sem envio automatico.
+- Workflow e painel de aprovacao abrem o rascunho depois das transicoes, mantendo save/revisao/backup existentes.
+
 Quick checks:
 - Source branch clean before promotion.
 - Target `main` prepared from `origin/main`.
