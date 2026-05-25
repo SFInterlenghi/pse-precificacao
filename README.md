@@ -7,7 +7,7 @@ de projetos de PD&I.
 A versao estavel atual e:
 
 ```text
-app/ISIB&F_precificação_de_projetos_v033.html
+app/ISIB&F_precificação_de_projetos_v034.html
 ```
 
 > Observacao: os arquivos HTML oficiais usam acentos no nome. Se o terminal
@@ -33,7 +33,7 @@ de custos, regras de fomento e colaboracao entre equipes. Ela centraliza:
 1. Abra o arquivo estavel atual no navegador:
 
    ```text
-   app/ISIB&F_precificação_de_projetos_v033.html
+   app/ISIB&F_precificação_de_projetos_v034.html
    ```
 
 2. Use Edge ou Chrome para habilitar o modo `DB sincronizado`.
@@ -143,7 +143,7 @@ Nao use esse arquivo como DB vivo se ja existir um `ISIBF_DB.json` em uso.
   .gitignore
 
   app/
-    ISIB&F_precificação_de_projetos_v033.html
+    ISIB&F_precificação_de_projetos_v034.html
 
   data/
     catalog/
@@ -165,6 +165,7 @@ Nao use esse arquivo como DB vivo se ja existir um `ISIBF_DB.json` em uso.
     IMPLEMENTATION_LOG_CODEX_V031_CATALOGS.md
     IMPLEMENTATION_LOG_CODEX_V032_VALIDATION_EXPORT.md
     IMPLEMENTATION_LOG_CODEX_V033_BUGFIXES.md
+    IMPLEMENTATION_LOG_CODEX_V034_RELEASE.md
 
   archive/
     versions/
@@ -180,6 +181,7 @@ Nao use esse arquivo como DB vivo se ja existir um `ISIBF_DB.json` em uso.
         ISIB&F_precificação_de_projetos_v030.html
         ISIB&F_precificação_de_projetos_v031.html
         ISIB&F_precificação_de_projetos_v032.html
+        ISIB&F_precificação_de_projetos_v033.html
         pse_v23_codex_beta_fixes.html
         pse_v24_codex_revision_tracking.html
         pse_v25_codex_revision_cycle.html
@@ -198,7 +200,7 @@ Nao use esse arquivo como DB vivo se ja existir um `ISIBF_DB.json` em uso.
 ```
 
 Na branch `dev`, o diretorio `app/` fica propositalmente enxuto: somente a
-versao recente de continuacao (`v033`) permanece como executavel principal.
+versao recente de continuacao (`v034`) permanece como executavel principal.
 Versoes intermediarias e experimentais ficam em `archive/outdated/` para
 consulta historica sem poluir o ponto de entrada do desenvolvimento.
 
@@ -396,7 +398,7 @@ ExcelJS 4.4.0 via CDN
 O arquivo gerado segue padrao profissional:
 
 ```text
-ISIBF_PSE_Proposta_<proposalId>_<safeTitle>_<yyyy-mm-dd>_v033.xlsx
+ISIBF_PSE_Proposta_<proposalId>_<safeTitle>_<yyyy-mm-dd>_v034.xlsx
 ```
 
 Planilhas geradas:
@@ -479,7 +481,8 @@ bloqueiam, mas entram na aba de validacoes.
 
 | Versao | Arquivo | Status | Resumo |
 | --- | --- | --- | --- |
-| v033 | `app/ISIB&F_precificação_de_projetos_v033.html` | Em validacao no dev | Correcoes de acesso para usuario novo, home cards, notificacoes, fechamento do menu do usuario, exclusao de proposta por gestor e ajuste financeiro EMBRAPII/consolidado. |
+| v034 | `app/ISIB&F_precificação_de_projetos_v034.html` | Estavel atual | Promocao da v033 corrigida para nome/versionamento v034, com ajuste financeiro EMBRAPII/consolidado. |
+| v033 | `archive/outdated/versions/ISIB&F_precificação_de_projetos_v033.html` | Arquivado em dev | Correcoes de acesso para usuario novo, home cards, notificacoes, fechamento do menu do usuario, exclusao de proposta por gestor e ajuste financeiro EMBRAPII/consolidado. |
 | v032 | `archive/outdated/versions/ISIB&F_precificação_de_projetos_v032.html` | Arquivado em dev | Ajustes de validacao por escopo de projeto, indiretos sem fomento, export XLSX v032 e seletor HH legacy/atual. |
 | v031 | `archive/outdated/versions/ISIB&F_precificação_de_projetos_v031.html` | Arquivado em dev | Catalogos para Software, Uso de Equipamentos e Material Permanente; uso de equipamento por HM conhecido. |
 | v030 | `archive/outdated/versions/ISIB&F_precificação_de_projetos_v030.html` | Arquivado em dev | Nova exportacao XLSX executiva com ExcelJS; seed virgem oficial; limpeza de defaults de pessoal; correcao de HH carregado. |
@@ -493,11 +496,12 @@ bloqueiam, mas entram na aba de validacoes.
 - `logs/IMPLEMENTATION_LOG_CODEX_V031_CATALOGS.md`
 - `logs/IMPLEMENTATION_LOG_CODEX_V032_VALIDATION_EXPORT.md`
 - `logs/IMPLEMENTATION_LOG_CODEX_V033_BUGFIXES.md`
+- `logs/IMPLEMENTATION_LOG_CODEX_V034_RELEASE.md`
 - `logs/IMPLEMENTATION_LOG_CURRENT.md`
 
 ## Testes manuais recomendados antes de release
 
-- Abrir v033 no Edge/Chrome.
+- Abrir v034 no Edge/Chrome.
 - Conectar `ISIBF_DB.json` pelo modo `DB sincronizado`.
 - Confirmar que landing mostra status verde do DB.
 - Criar proposta direta sem fomento e configurar indiretos abaixo/acima de 30%.
@@ -513,5 +517,4 @@ bloqueiam, mas entram na aba de validacoes.
 
 ## Status atual
 
-`dev` contem a v033 em validacao. A `main` deve receber a v033 somente depois
-dos testes beta desses bugs.
+`main` e `dev` contem a v034 com as correcoes financeiras e de acesso mais recentes.

@@ -78,6 +78,11 @@ V33 bugfixes:
 - Consolidação de proposta mãe inclui todos os itens próprios da mãe e calcula indiretos uma única vez no nível do projeto.
 - Caso validado: `ISIB&F-2026-0008` fecha em R$ 162.010,21 financeiro, R$ 99.242,88 econômico e R$ 261.253,09 total.
 
+V34 release:
+- v033 corrigida promovida para `app/ISIB&F_precificação_de_projetos_v034.html`.
+- Metadados, título HTML e nome do XLSX exportado atualizados para v034.
+- v033 arquivada em `archive/outdated/versions/`.
+
 Quick checks:
 - Source branch clean before promotion.
 - Target `main` prepared from `origin/main`.
