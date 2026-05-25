@@ -93,6 +93,12 @@ V35 merge/email follow-up:
 - Workflow e painel de aprovacao abrem o rascunho depois das transicoes, mantendo save/revisao/backup existentes.
 - Ajuste posterior removeu botoes extras de e-mail da barra de workflow e manteve apenas o modal automatico com acao `Enviar para e-mail` via cliente padrao/Outlook.
 
+V36 release:
+- v035 validada foi versionada como `app/ISIB&F_precificaÃ§Ã£o_de_projetos_v036.html`.
+- Metadados internos, rodape e nome do XLSX exportado atualizados para v036/v36.
+- v035 arquivada em `archive/outdated/versions/`.
+- v036 copiada para a pasta compartilhada do OneDrive.
+
 Quick checks:
 - Source branch clean before promotion.
 - Target `main` prepared from `origin/main`.
