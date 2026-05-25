@@ -479,7 +479,7 @@ bloqueiam, mas entram na aba de validacoes.
 
 | Versao | Arquivo | Status | Resumo |
 | --- | --- | --- | --- |
-| v033 | `app/ISIB&F_precificação_de_projetos_v033.html` | Em validacao no dev | Correcoes de acesso para usuario novo, home cards, notificacoes, fechamento do menu do usuario e exclusao de proposta por gestor. |
+| v033 | `app/ISIB&F_precificação_de_projetos_v033.html` | Em validacao no dev | Correcoes de acesso para usuario novo, home cards, notificacoes, fechamento do menu do usuario, exclusao de proposta por gestor e ajuste financeiro EMBRAPII/consolidado. |
 | v032 | `archive/outdated/versions/ISIB&F_precificação_de_projetos_v032.html` | Arquivado em dev | Ajustes de validacao por escopo de projeto, indiretos sem fomento, export XLSX v032 e seletor HH legacy/atual. |
 | v031 | `archive/outdated/versions/ISIB&F_precificação_de_projetos_v031.html` | Arquivado em dev | Catalogos para Software, Uso de Equipamentos e Material Permanente; uso de equipamento por HM conhecido. |
 | v030 | `archive/outdated/versions/ISIB&F_precificação_de_projetos_v030.html` | Arquivado em dev | Nova exportacao XLSX executiva com ExcelJS; seed virgem oficial; limpeza de defaults de pessoal; correcao de HH carregado. |

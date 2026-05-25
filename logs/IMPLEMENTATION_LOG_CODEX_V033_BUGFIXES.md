@@ -27,3 +27,17 @@ Saída: app/ISIB&F_precificação_de_projetos_v033.html
 ## Checks
 - Checagem sintática dos scripts HTML.
 - CALC, VAL, EXPORT, REVISION, AUTH e PRICE_CAT permanecem no arquivo.
+
+## Ajuste financeiro ISIB&F-2026-0008
+- Suporte Operacional EMBRAPII passa a usar base `diretos financeiros + diretos econômicos`, sem incluir o próprio suporte.
+- A regra foi centralizada em `CALC.calcIndirects(st, dirFin, dirEco)`.
+- `TEAM.calcConsolidado(id_mae)` passa a somar todos os itens próprios da proposta mãe e os diretos das subpropostas, calculando indiretos uma única vez no nível do projeto.
+- Resumo lateral, lista de propostas e exportação XLSX passam a usar a mesma lógica consolidada para proposta mãe.
+- Validação por execução no DB compartilhado para `ISIB&F-2026-0008`:
+  - Direto financeiro: R$ 127.933,72.
+  - Direto econômico: R$ 99.242,88.
+  - Base Suporte EMBRAPII: R$ 227.176,60.
+  - Suporte Operacional: R$ 34.076,49.
+  - Total financeiro: R$ 162.010,21.
+  - Total econômico: R$ 99.242,88.
+  - Total do projeto: R$ 261.253,09.

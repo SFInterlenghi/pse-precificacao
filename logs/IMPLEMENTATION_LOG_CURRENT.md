@@ -74,6 +74,9 @@ V33 bugfixes:
 - Banner de notificações é limpo na troca/login de usuário.
 - Menu do usuário fecha por clique externo ou Escape.
 - Gestores podem excluir a proposta atual pelo menu do usuário, com confirmação e gravação no DB sincronizado quando conectado.
+- Correção financeira EMBRAPII: Suporte Operacional usa diretos financeiros + econômicos como base.
+- Consolidação de proposta mãe inclui todos os itens próprios da mãe e calcula indiretos uma única vez no nível do projeto.
+- Caso validado: `ISIB&F-2026-0008` fecha em R$ 162.010,21 financeiro, R$ 99.242,88 econômico e R$ 261.253,09 total.
 
 Quick checks:
 - Source branch clean before promotion.

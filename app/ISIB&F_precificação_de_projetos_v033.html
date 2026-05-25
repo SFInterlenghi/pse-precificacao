@@ -3779,6 +3779,22 @@ const CALC={
   viagemDiaria(v){return v.tem_diaria?(v.diaria_valor||0)*(v.diaria_dias||0)*(v.diaria_pessoas||1):0;},
   viagemTotal(v){return this.viagemPass(v)+this.viagemDiaria(v);},
 
+  calcIndirects(st, dirFin, dirEco){
+    FOMENTO.syncMeta(st.meta);
+    const isEmb=FOMENTO.has(st.meta,'embrapii');
+    const isANP=FOMENTO.has(st.meta,'anp')||FOMENTO.has(st.meta,'petrobras');
+    const isANEEL=FOMENTO.has(st.meta,'aneel');
+    const isSem=FOMENTO.has(st.meta,'sem');
+    const c=st.config||{};
+    let inds=[];
+    // EMBRAPII: suporte operacional incide sobre diretos financeiros + diretos econômicos, sem incluir o próprio suporte.
+    if(isEmb){ const pct=c.suporte_pct||0.15; inds.push({id:'suporte',nome:'Suporte Operacional',pct,val:(dirFin+dirEco)*pct,base:dirFin+dirEco}); }
+    else if(isANP){ const doa_limit = (st.meta.tipo_proj === 'infra') ? 0.03 : 0.05; inds.push({id:'doa',nome:'Desp. Operacional (DOA)',pct:c.doa_pct||doa_limit,val:dirFin*(c.doa_pct||doa_limit),base:dirFin}); inds.push({id:'ci', nome:'Custos Indiretos (CI)', pct:c.ci_pct||0.15, val:dirFin*(c.ci_pct||0.15),base:dirFin}); }
+    else if(isANEEL){ inds.push({id:'doa_aneel',nome:'Taxa Administrativa',pct:c.doa_aneel_pct||0.05,val:dirFin*(c.doa_aneel_pct||0.05),base:dirFin}); inds.push({id:'ci_aneel', nome:'Taxa de Infraestrutura',pct:c.ci_aneel_pct||0.05,val:dirFin*(c.ci_aneel_pct||0.05),base:dirFin}); }
+    else if(isSem){ const semPct = c.sem_ind_pct ?? 0.30; inds.push({id:'sem_ind',nome:'Custos Indiretos',pct:semPct,val:dirFin*semPct,base:dirFin}); }
+    return inds;
+  },
+
   calcAll(st){
     FOMENTO.syncMeta(st.meta);
     const f=st.meta.fomento; const isEmb=FOMENTO.has(st.meta,'embrapii'); const isANP=FOMENTO.has(st.meta,'anp')||FOMENTO.has(st.meta,'petrobras'); const isANEEL=FOMENTO.has(st.meta,'aneel'); const isSem=FOMENTO.has(st.meta,'sem'); const c=st.config;
@@ -3801,11 +3817,7 @@ const CALC={
     const dirFin=pTec_fin+pAdm_fin+pass_fin+diaria_fin+soft_fin+equip_fin+cons_fin+serv_fin+matp_fin;
     const dirEco=pTec_eco+pAdm_eco+pass_eco+diaria_eco+soft_eco+equip_eco+cons_eco+serv_eco+matp_eco;
 
-    let inds=[];
-    if(isEmb){ inds.push({id:'suporte',nome:'Suporte Operacional',pct:c.suporte_pct||0.15,val:dirFin*(c.suporte_pct||0.15)}); }
-    else if(isANP){ const doa_limit = (st.meta.tipo_proj === 'infra') ? 0.03 : 0.05; inds.push({id:'doa',nome:'Desp. Operacional (DOA)',pct:c.doa_pct||doa_limit,val:dirFin*(c.doa_pct||doa_limit)}); inds.push({id:'ci', nome:'Custos Indiretos (CI)', pct:c.ci_pct||0.15, val:dirFin*(c.ci_pct||0.15)}); }
-    else if(isANEEL){ inds.push({id:'doa_aneel',nome:'Taxa Administrativa',pct:c.doa_aneel_pct||0.05,val:dirFin*(c.doa_aneel_pct||0.05)}); inds.push({id:'ci_aneel', nome:'Taxa de Infraestrutura',pct:c.ci_aneel_pct||0.05,val:dirFin*(c.ci_aneel_pct||0.05)}); }
-    else if(isSem){ const semPct = c.sem_ind_pct ?? 0.30; inds.push({id:'sem_ind',nome:'Custos Indiretos',pct:semPct,val:dirFin*semPct}); }
+    let inds=this.calcIndirects(st, dirFin, dirEco);
 
     const indsFin=inds.reduce((s,i)=>s+i.val,0);
     const totalFin=dirFin+indsFin;
@@ -4922,23 +4934,7 @@ function renderResume(){
     let calc;
     if(p.tipo_proposta==='mae' && hasTeamData){
       const consol = TEAM.calcConsolidado(id_mae);
-      const maeCalc = CALC.calcAll(STATE);
-      const allFin = consol.totalFin + maeCalc.pAdm_fin;
-      const allEco = consol.totalEco + maeCalc.pAdm_eco;
-      calc = {
-        pTec_fin: consol.equipes.reduce((s,e)=>s+(e.calc?.pTec_fin||0),0) + maeCalc.pTec_fin,
-        pTec_eco: consol.equipes.reduce((s,e)=>s+(e.calc?.pTec_eco||0),0) + maeCalc.pTec_eco,
-        pAdm_fin: maeCalc.pAdm_fin, pAdm_eco: maeCalc.pAdm_eco,
-        pass_fin:  consol.equipes.reduce((s,e)=>s+(e.calc?.pass_fin||0),0), pass_eco:  consol.equipes.reduce((s,e)=>s+(e.calc?.pass_eco||0),0),
-        diaria_fin:consol.equipes.reduce((s,e)=>s+(e.calc?.diaria_fin||0),0), diaria_eco:consol.equipes.reduce((s,e)=>s+(e.calc?.diaria_eco||0),0),
-        soft_fin:  consol.equipes.reduce((s,e)=>s+(e.calc?.soft_fin||0),0), soft_eco:  consol.equipes.reduce((s,e)=>s+(e.calc?.soft_eco||0),0),
-        equip_fin: consol.equipes.reduce((s,e)=>s+(e.calc?.equip_fin||0),0), equip_eco: consol.equipes.reduce((s,e)=>s+(e.calc?.equip_eco||0),0),
-        cons_fin:  consol.equipes.reduce((s,e)=>s+(e.calc?.cons_fin||0),0), cons_eco:  consol.equipes.reduce((s,e)=>s+(e.calc?.cons_eco||0),0),
-        serv_fin:  consol.equipes.reduce((s,e)=>s+(e.calc?.serv_fin||0),0), serv_eco:  consol.equipes.reduce((s,e)=>s+(e.calc?.serv_eco||0),0),
-        matp_fin:  consol.equipes.reduce((s,e)=>s+(e.calc?.matp_fin||0),0), matp_eco:  consol.equipes.reduce((s,e)=>s+(e.calc?.matp_eco||0),0),
-        dirFin: allFin, dirEco: allEco, inds: maeCalc.inds, indsFin: maeCalc.indsFin, totalFin: allFin + maeCalc.indsFin, totalEco: allEco,
-        total:    allFin + maeCalc.indsFin + allEco, dist: maeCalc.dist, config: maeCalc.config||STATE.config, f: STATE.meta.fomento,
-      };
+      calc = consol.calc;
     } else { calc = CALC.calcAll(STATE); }
     
     const sb=v=>fmt_r(v);
@@ -5099,7 +5095,7 @@ function renderResume(){
   h += rubricaSection('Serviços de Terceiros', e=>({fin:e.calc?.serv_fin||0, eco:e.calc?.serv_eco||0}), maeServFin, maeServEco);
   h += rubricaSection('Material Permanente', e=>({fin:e.calc?.matp_fin||0, eco:e.calc?.matp_eco||0}), maeMatpFin, maeMatpEco);
 
-  const totalInds = consol.equipes.reduce((s,e)=>{ return s + (e.calc?.indsFin||0); },0) + (mae ? (CALC.calcAll(mae.state).indsFin||0) : 0);
+  const totalInds = consol.indsFin || 0;
   if(totalInds>0){ h+=`<div class="sb-section"><div class="sb-sec-title">Despesas Indiretas (Total)</div><div class="sb-row"><span class="sb-lbl">Total Indiretos</span><span class="sb-val">${sb(totalInds)}</span></div></div>`; }
 
   if(FOMENTO.has(consol.equipes[0]?.calc ? {fomento:consol.equipes[0].calc.f} : {}, 'embrapii') || FOMENTO.has(mae?.state?.meta||{}, 'embrapii')){
@@ -5261,22 +5257,39 @@ const TEAM = {
 
   calcConsolidado(id_mae){
     const equipes = this.getEquipes(id_mae); const mae = this.getMae(id_mae);
-    const result  = { equipes:[], totalFin:0, totalEco:0, total:0, has_mae_estimate:false, mae_estimate:0 };
+    const keys = ['pTec_fin','pTec_eco','pAdm_fin','pAdm_eco','pass_fin','pass_eco','diaria_fin','diaria_eco','soft_fin','soft_eco','equip_fin','equip_eco','cons_fin','cons_eco','serv_fin','serv_eco','serv_pdi','serv_tec','serv_out','matp_fin','matp_eco'];
+    const sum = {}; keys.forEach(k=>sum[k]=0);
+    const addDirect = calc => keys.forEach(k=>sum[k]+=(calc[k]||0));
+    const result  = { equipes:[], totalFin:0, totalEco:0, total:0, has_mae_estimate:false, mae_estimate:0, inds:[], indsFin:0, calc:null };
     equipes.forEach(p=>{
       try{
         const calc = CALC.calcAll(p.state);
-        result.equipes.push({ id: p.id, equipe: p.equipe||p.id, titulo: p.state.meta.titulo, status: p.status, totalFin: calc.totalFin, totalEco: calc.totalEco, total: calc.total, dirFin: calc.dirFin, ptec_total: calc.pTec_fin+calc.pTec_eco, padm_total: 0, viag_total: calc.pass_fin+calc.pass_eco+calc.diaria_fin+calc.diaria_eco, soft_total: calc.soft_fin+calc.soft_eco, equip_total: calc.equip_fin+calc.equip_eco, cons_total:  calc.cons_fin+calc.cons_eco, serv_total:  calc.serv_fin+calc.serv_eco, matp_total:  calc.matp_fin+calc.matp_eco, fte_total: p.state.ptec.reduce((s,r)=>s+CALC.fte(r),0), n_pessoas: p.state.ptec.length, inds: calc.inds, calc, });
-        result.totalFin += calc.totalFin; result.totalEco += calc.totalEco; result.total    += calc.total;
+        addDirect(calc);
+        const teamCalc = {...calc, totalFin:calc.dirFin, totalEco:calc.dirEco, total:calc.dirFin+calc.dirEco, inds:[], indsFin:0};
+        result.equipes.push({ id: p.id, equipe: p.equipe||p.id, titulo: p.state.meta.titulo, status: p.status, totalFin: teamCalc.totalFin, totalEco: teamCalc.totalEco, total: teamCalc.total, dirFin: calc.dirFin, ptec_total: calc.pTec_fin+calc.pTec_eco, padm_total: calc.pAdm_fin+calc.pAdm_eco, viag_total: calc.pass_fin+calc.pass_eco+calc.diaria_fin+calc.diaria_eco, soft_total: calc.soft_fin+calc.soft_eco, equip_total: calc.equip_fin+calc.equip_eco, cons_total:  calc.cons_fin+calc.cons_eco, serv_total:  calc.serv_fin+calc.serv_eco, matp_total:  calc.matp_fin+calc.matp_eco, fte_total: p.state.ptec.reduce((s,r)=>s+CALC.fte(r),0), n_pessoas: p.state.ptec.length, inds: [], calc:teamCalc, rawCalc:calc });
       }catch(e){}
     });
     if(mae){
       try{
         const maeCalc = CALC.calcAll(mae.state);
+        addDirect(maeCalc);
         result.mae_padm_fin = maeCalc.pAdm_fin; result.mae_padm_eco = maeCalc.pAdm_eco;
-        result.totalFin += maeCalc.pAdm_fin; result.totalEco += maeCalc.pAdm_eco; result.total += maeCalc.pAdm_fin + maeCalc.pAdm_eco;
-        const maeTotal = maeCalc.total; if(maeTotal>0){ result.has_mae_estimate=true; result.mae_estimate=maeTotal; }
+        result.maeCalc = maeCalc;
       }catch(e){}
     }
+    const dirFin=sum.pTec_fin+sum.pAdm_fin+sum.pass_fin+sum.diaria_fin+sum.soft_fin+sum.equip_fin+sum.cons_fin+sum.serv_fin+sum.matp_fin;
+    const dirEco=sum.pTec_eco+sum.pAdm_eco+sum.pass_eco+sum.diaria_eco+sum.soft_eco+sum.equip_eco+sum.cons_eco+sum.serv_eco+sum.matp_eco;
+    const baseState = mae?.state || STATE;
+    const inds = CALC.calcIndirects(baseState, dirFin, dirEco);
+    const indsFin = inds.reduce((s,i)=>s+(i.val||0),0);
+    result.totalFin = dirFin + indsFin;
+    result.totalEco = dirEco;
+    result.total = result.totalFin + result.totalEco;
+    result.inds = inds;
+    result.indsFin = indsFin;
+    result.has_mae_estimate = !!mae && (dirFin+dirEco)>0;
+    result.mae_estimate = dirFin+dirEco;
+    result.calc = {...sum, dirFin, dirEco, inds, indsFin, totalFin:result.totalFin, totalEco:result.totalEco, total:result.total, dist:result.maeCalc?.dist||null, f:baseState.meta?.fomento, config:baseState.config||{}};
     return result;
   },
 
@@ -5571,11 +5584,16 @@ const EXPORT_DATA = {
     const directFinancial = Object.values(byRubric).reduce((s,r)=>s+r.financial,0);
     const economic = Object.values(byRubric).reduce((s,r)=>s+r.economic,0);
     const indirects = [];
-    records.forEach(rec=>{
-      (rec.calc.inds||[]).forEach(i=>{
-        indirects.push({sourceProposalId:rec.id, team:rec.equipe||'', name:i.nome, pct:i.pct||0, value:i.val||0});
+    if(records[0]?.tipo_proposta === 'mae'){
+      const inds = CALC.calcIndirects(records[0].state, directFinancial, economic);
+      inds.forEach(i=>indirects.push({sourceProposalId:records[0].id, team:'Projeto', name:i.nome, pct:i.pct||0, value:i.val||0, base:i.base||0}));
+    } else {
+      records.forEach(rec=>{
+        (rec.calc.inds||[]).forEach(i=>{
+          indirects.push({sourceProposalId:rec.id, team:rec.equipe||'', name:i.nome, pct:i.pct||0, value:i.val||0, base:i.base||0});
+        });
       });
-    });
+    }
     const indirectFinancial = indirects.reduce((s,i)=>s+i.value,0);
     const totalFinancial = directFinancial + indirectFinancial;
     const totalProject = totalFinancial + economic;
@@ -8130,11 +8148,10 @@ const DB = {
       const fomLabel=FOMENTO.label(p.state?.meta||{})||'—';
       let total='—';
       try{
-        const ownTotal = CALC.calcAll({...p.state}).total;
         if(p.tipo_proposta==='mae' && equipesByMae[p.id]?.length){
-          const childrenTotal = equipesByMae[p.id].reduce((sum,eq)=>{ try{ return sum+CALC.calcAll({...eq.state}).total; }catch(e){ return sum; } },0);
-          total = fmt_r(ownTotal + childrenTotal);
+          total = fmt_r(TEAM.calcConsolidado(p.id).total);
         } else {
+          const ownTotal = CALC.calcAll({...p.state}).total;
           total = fmt_r(ownTotal);
         }
       }catch(e){}
