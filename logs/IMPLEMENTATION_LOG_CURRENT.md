@@ -99,6 +99,13 @@ V36 release:
 - v035 arquivada em `archive/outdated/versions/`.
 - v036 copiada para a pasta compartilhada do OneDrive.
 
+V37 sidebar tickets:
+- v036 versionada como `app/ISIB&F_precificaÃ§Ã£o_de_projetos_v037.html`.
+- Sidebar passou a exibir ticket medio financeiro/mês e ticket medio total/mês.
+- Calculo linear: total financeiro / duracao e total do projeto / duracao.
+- Aplicado para proposta direta, subproposta/equipe, proposta mae consolidada e visao por equipe.
+- Sem mudanca em CALC, VAL, DB ou regras financeiras.
+
 Quick checks:
 - Source branch clean before promotion.
 - Target `main` prepared from `origin/main`.
