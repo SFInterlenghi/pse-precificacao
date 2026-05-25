@@ -91,6 +91,7 @@ V35 merge/email follow-up:
 - Listagem evita agrupar proposta direta independente como revisao de outra apenas por `revisao_numero > 0`.
 - Modulo `EMAIL_DRAFTS` gera rascunhos editaveis para envio para aprovacao, revisao solicitada e proposta aprovada, sem envio automatico.
 - Workflow e painel de aprovacao abrem o rascunho depois das transicoes, mantendo save/revisao/backup existentes.
+- Ajuste posterior removeu botoes extras de e-mail da barra de workflow e manteve apenas o modal automatico com acao `Enviar para e-mail` via cliente padrao/Outlook.
 
 Quick checks:
 - Source branch clean before promotion.

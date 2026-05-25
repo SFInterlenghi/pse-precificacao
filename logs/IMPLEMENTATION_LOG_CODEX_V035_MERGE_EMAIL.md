@@ -22,6 +22,10 @@
   - aprovação.
 - Adicionados botões manuais no workflow para regerar rascunhos conforme o status da proposta.
 
+## Ajuste pós-validação
+- Removidos os botões manuais extras de e-mail da barra de workflow para preservar a aparência/texto original dos botões de aprovação e revisão.
+- O modal de rascunho mantém a geração automática depois da transição e agora usa o botão `Enviar para e-mail` para abrir o cliente padrão/Outlook via `mailto` preenchido.
+
 ## Regras preservadas
 - Nenhum e-mail é enviado automaticamente.
 - Nenhuma API externa de e-mail foi adicionada.

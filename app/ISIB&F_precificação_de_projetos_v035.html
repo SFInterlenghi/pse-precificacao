@@ -2240,7 +2240,7 @@ input[type=radio]:checked + .tipo-prop-card .tipo-prop-icon{color:var(--gold-dee
         <button class="btn btn-outline btn-sm" onclick="EMAIL_DRAFTS.copyField('subject')">Copiar assunto</button>
         <button class="btn btn-outline btn-sm" onclick="EMAIL_DRAFTS.copyField('body')">Copiar corpo</button>
         <button class="btn btn-secondary btn-sm" onclick="EMAIL_DRAFTS.copyAll()">Copiar e-mail completo</button>
-        <button class="btn btn-primary btn-sm" onclick="EMAIL_DRAFTS.openMailto()">Abrir no e-mail</button>
+        <button class="btn btn-primary btn-sm" onclick="EMAIL_DRAFTS.openMailto()">Enviar para e-mail</button>
       </div>
     </div>
   </div>
@@ -6161,9 +6161,19 @@ const EMAIL_DRAFTS = {
 
   openMailto(){
     const d = this.current();
-    const href = `mailto:${encodeURIComponent(d.to)}?cc=${encodeURIComponent(d.cc)}&subject=${encodeURIComponent(d.subject)}&body=${encodeURIComponent(d.body)}`;
+    const mailtoList = value => (value || '').split(/[;,]/).map(x=>x.trim()).filter(Boolean).map(encodeURIComponent).join(',');
+    const params = new URLSearchParams();
+    if(d.cc) params.set('cc', d.cc);
+    params.set('subject', d.subject);
+    params.set('body', d.body);
+    const href = `mailto:${mailtoList(d.to)}?${params.toString()}`;
     if(href.length > 1800) toast('O e-mail é longo e alguns clientes podem truncar o mailto. Use Copiar e-mail completo se necessário.', 'warn', 7000);
-    window.location.href = href;
+    const a = document.createElement('a');
+    a.href = href;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>a.remove(), 1000);
   }
 };
 
@@ -8093,15 +8103,6 @@ const DB = {
     }
     
     acts += `<button id="btn-hist" class="btn btn-sm btn-outline" onclick="AUDIT.open()">Histórico</button>`;
-    if(p.status==='aguardando_aprovacao'){
-      acts += `<button class="btn btn-sm btn-outline" onclick="EMAIL_DRAFTS.open('sent_for_approval')">E-mail aprovação</button>`;
-    }
-    if(p.status==='em_revisao'){
-      acts += `<button class="btn btn-sm btn-outline" onclick="EMAIL_DRAFTS.open('revision_requested')">E-mail revisão</button>`;
-    }
-    if(p.status==='aprovado'){
-      acts += `<button class="btn btn-sm btn-outline" onclick="EMAIL_DRAFTS.open('approved')">E-mail aprovado</button>`;
-    }
 
     if((p.status==='em_elaboracao'||p.status==='em_revisao') && canEdit && p.tipo_proposta!=='equipe'){
       acts += `<button class="btn btn-sm wf-btn-submit" onclick="DB.sendForApproval()">Enviar para aprovação</button>`;
