@@ -106,6 +106,16 @@ V37 sidebar tickets:
 - Aplicado para proposta direta, subproposta/equipe, proposta mae consolidada e visao por equipe.
 - Sem mudanca em CALC, VAL, DB ou regras financeiras.
 
+V38 Sprint 1:
+- Horas de pessoal passaram a aceitar somente inteiros e exibem `HH PROJ.` somente leitura.
+- Petrobras usa horas semanais inteiras, convertidas por `h/sem × 52/12 × meses`.
+- Validações locais são exibidas nas subpropostas e as consolidadas permanecem na mãe.
+- Otimizador econômico EMBRAPII passou a resolver o efeito do próprio HH sobre o suporte em uma execução.
+- Corrigidos espaços em rascunhos `mailto`, textos com mojibake e rótulos do modo local.
+- Criar/abrir proposta fecha a tela inicial; proposta direta nova exige equipe.
+- Botão circular do header salva/recarrega; propostas aprovadas ficam somente leitura com Salvar e Backup disponíveis.
+- Detalhes: `IMPLEMENTATION_LOG_CODEX_V038_SPRINT1.md`.
+
 Quick checks:
 - Source branch clean before promotion.
 - Target `main` prepared from `origin/main`.
