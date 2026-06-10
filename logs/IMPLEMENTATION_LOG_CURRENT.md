@@ -116,6 +116,14 @@ V38 Sprint 1:
 - Botão circular do header salva/recarrega; propostas aprovadas ficam somente leitura com Salvar e Backup disponíveis.
 - Detalhes: `IMPLEMENTATION_LOG_CODEX_V038_SPRINT1.md`.
 
+V39 Sprint 2:
+- Boas práticas exclusivas de ESP para ticket mensal e presença/proporção de software.
+- Origem de recursos EMBRAPII classificada por item: EP/EB para financeiro e SN para econômico.
+- Material permanente e Suporte Operacional obrigatoriamente alocados em EP.
+- Sidebar separa Distribuição Meta e Distribuição Atual, destacando falta/excesso por fonte.
+- Custos históricos sem origem permanecem explicitamente não classificados, sem migração presumida.
+- Detalhes: `IMPLEMENTATION_LOG_CODEX_V039_SPRINT2.md`.
+
 Quick checks:
 - Source branch clean before promotion.
 - Target `main` prepared from `origin/main`.
