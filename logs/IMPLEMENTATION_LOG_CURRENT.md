@@ -124,6 +124,14 @@ V39 Sprint 2:
 - Custos históricos sem origem permanecem explicitamente não classificados, sem migração presumida.
 - Detalhes: `IMPLEMENTATION_LOG_CODEX_V039_SPRINT2.md`.
 
+V40 Sprint 3:
+- Fundação de macroentregas para proposta mãe EMBRAPII, mantendo propostas históricas no modo tradicional.
+- Criação e editor posterior exigem no mínimo 3 macros, nomes, durações inteiras e soma igual ao prazo total.
+- Períodos relativos são derivados em meses sequenciais.
+- Subpropostas novas, adicionadas depois ou abertas de DB antigo herdam prazo e estrutura da mãe.
+- Validação estrutural funciona mesmo antes de existir valor financeiro.
+- Detalhes: `IMPLEMENTATION_LOG_CODEX_V040_SPRINT3.md`.
+
 Quick checks:
 - Source branch clean before promotion.
 - Target `main` prepared from `origin/main`.
