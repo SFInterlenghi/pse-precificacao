@@ -132,6 +132,15 @@ V40 Sprint 3:
 - Validação estrutural funciona mesmo antes de existir valor financeiro.
 - Detalhes: `IMPLEMENTATION_LOG_CODEX_V040_SPRINT3.md`.
 
+V41 Sprint 4:
+- Todos os itens passam a exigir macroentrega quando o modo por macro está ativo.
+- Pessoas podem atuar em várias macros e são rateadas linearmente pela duração das etapas.
+- Demais rubricas pertencem integralmente a uma macro.
+- Sidebar ganhou visão `Por Macroentrega`, com rubricas, equipes, desembolso e comparação Meta x Atual de EP/EB/SN.
+- Validação bloqueia itens sem macro, referências inválidas, origem financeira ausente e distribuição divergente por etapa.
+- Fórmulas de `CALC` permaneceram intactas.
+- Detalhes: `IMPLEMENTATION_LOG_CODEX_V041_SPRINT4.md`.
+
 Quick checks:
 - Source branch clean before promotion.
 - Target `main` prepared from `origin/main`.
