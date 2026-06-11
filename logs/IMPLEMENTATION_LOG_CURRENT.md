@@ -149,6 +149,15 @@ V42 Sprint 5:
 - Fórmulas, workflow, status e valores financeiros permaneceram intactos.
 - Detalhes: `IMPLEMENTATION_LOG_CODEX_V042_SPRINT5.md`.
 
+V43 auditoria final:
+- Validações agregadas de mãe passaram a considerar mãe + subpropostas, inclusive quando a mãe não possui itens próprios.
+- Limites consolidados de serviços EMBRAPII e equipamentos ANP foram corrigidos.
+- Percentuais configurados em `0%` passaram a ser respeitados no cálculo e na interface.
+- Novas propostas ANP/Petrobras de infraestrutura começam com DOA de `3%`.
+- Matriz multifomento validada com o teto equivalente mais conservador.
+- A repartição automática entre DOA e CI não foi inventada; o usuário configura os componentes dentro do teto combinado.
+- Detalhes: `IMPLEMENTATION_LOG_CODEX_V043_FINAL_AUDIT.md`.
+
 Quick checks:
 - Source branch clean before promotion.
 - Target `main` prepared from `origin/main`.
