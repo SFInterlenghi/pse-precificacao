@@ -141,6 +141,14 @@ V41 Sprint 4:
 - Fórmulas de `CALC` permaneceram intactas.
 - Detalhes: `IMPLEMENTATION_LOG_CODEX_V041_SPRINT4.md`.
 
+V42 Sprint 5:
+- Macroentregas integradas ao XLSX, Track Changes, histórico, carregamento e mesclagem.
+- XLSX ganhou a aba `11_Cronograma_Macros` e campos de macro nas tabelas normalizadas.
+- `state` e `state_base` são normalizados em conjunto, evitando diferenças artificiais de revisão.
+- Propostas tradicionais antigas permanecem sem campos novos; propostas macro recebem versão de schema compatível.
+- Fórmulas, workflow, status e valores financeiros permaneceram intactos.
+- Detalhes: `IMPLEMENTATION_LOG_CODEX_V042_SPRINT5.md`.
+
 Quick checks:
 - Source branch clean before promotion.
 - Target `main` prepared from `origin/main`.
