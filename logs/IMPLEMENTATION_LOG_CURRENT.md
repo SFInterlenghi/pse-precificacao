@@ -178,6 +178,15 @@ V45 otimização por macroentrega:
 - Criada a primeira suíte automatizada das regras financeiras alteradas.
 - Detalhes: `IMPLEMENTATION_LOG_CODEX_V045_MACRO_OPTIMIZATION.md`.
 
+V46 refinamento dos otimizadores:
+- Software e uso de equipamentos podem ser associados a várias macroentregas.
+- Itens multi-macro são rateados pela duração e separados por macro durante a otimização, preservando o total.
+- Itens são reordenados pela sequência das macros após uma otimização aceita.
+- Soluções com EP mais de 5% acima do valor-meta oferecem reversão integral.
+- Corrigida a dupla consolidação que podia ocultar os botões de otimização econômica e de origens na proposta mãe.
+- Custos inicialmente sem origem mantêm o otimizador de fontes disponível.
+- Detalhes: `IMPLEMENTATION_LOG_CODEX_V046_OPTIMIZER_REFINEMENT.md`.
+
 Quick checks:
 - Source branch clean before promotion.
 - Target `main` prepared from `origin/main`.
