@@ -158,6 +158,16 @@ V43 auditoria final:
 - A repartição automática entre DOA e CI não foi inventada; o usuário configura os componentes dentro do teto combinado.
 - Detalhes: `IMPLEMENTATION_LOG_CODEX_V043_FINAL_AUDIT.md`.
 
+V44 otimizadores e macroentregas:
+- Macroentregas disponíveis também para propostas diretas EMBRAPII.
+- Seleção de atuação de pessoal por macro agora é visível e não usa dropdown com scroll interno.
+- Meta e distribuição atual possuem cores de divergência/aderência distintas.
+- Otimizador econômico tem regra de visibilidade centralizada e desaparece quando a meta é atendida.
+- Novo otimizador distribui custos financeiros entre Empresa Parceira e EMBRAPII, inclusive nas subpropostas, preservando valores e horas inteiras.
+- Prioridade de divisão: pessoal e material de consumo; software, uso de equipamentos e serviços PD&I também podem ser fracionados.
+- Viagens, material permanente e serviços não PD&I permanecem inteiros; indiretos e material permanente permanecem na Empresa Parceira.
+- Detalhes: `IMPLEMENTATION_LOG_CODEX_V044_FUNDING_OPTIMIZER.md`.
+
 Quick checks:
 - Source branch clean before promotion.
 - Target `main` prepared from `origin/main`.
