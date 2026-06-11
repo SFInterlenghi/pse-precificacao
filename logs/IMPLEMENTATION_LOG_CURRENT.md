@@ -168,6 +168,16 @@ V44 otimizadores e macroentregas:
 - Viagens, material permanente e serviços não PD&I permanecem inteiros; indiretos e material permanente permanecem na Empresa Parceira.
 - Detalhes: `IMPLEMENTATION_LOG_CODEX_V044_FUNDING_OPTIMIZER.md`.
 
+V45 otimização por macroentrega:
+- O otimizador passou a resolver separadamente as metas EP/EMBRAPII/SENAI de cada macroentrega.
+- SENAI e EMBRAPII funcionam como tetos; resíduos decorrentes da granularidade dos itens permanecem na Empresa Parceira.
+- Diferenças de até 7 p.p. adicionais em EP geram aviso; diferenças maiores ou fontes acima do teto bloqueiam.
+- Horas de pessoal e quantidades de consumo permanecem inteiras; consumo fracionário bloqueia a otimização.
+- Consultoria permanece fora da divisão automática; somente serviços classificados como PD&I são divisíveis.
+- XLSX ganhou detalhamento de rubrica e fonte de recurso por macroentrega.
+- Criada a primeira suíte automatizada das regras financeiras alteradas.
+- Detalhes: `IMPLEMENTATION_LOG_CODEX_V045_MACRO_OPTIMIZATION.md`.
+
 Quick checks:
 - Source branch clean before promotion.
 - Target `main` prepared from `origin/main`.
