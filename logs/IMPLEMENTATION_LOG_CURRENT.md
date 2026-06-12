@@ -187,6 +187,14 @@ V46 refinamento dos otimizadores:
 - Custos inicialmente sem origem mantêm o otimizador de fontes disponível.
 - Detalhes: `IMPLEMENTATION_LOG_CODEX_V046_OPTIMIZER_REFINEMENT.md`.
 
+V47 botões de otimização na mãe consolidada:
+- Extraído o bloco "Ajustes automáticos" (botões `Otimizar HH Técnico` e `Otimizar origem financeira`) para um helper compartilhado `renderFundingAdjustments(calc)`.
+- O helper recalcula o escopo do projeto via `VAL.embrapiiScope(STATE, CALC.calcAll(STATE))`, evitando dupla contagem mesmo quando `calc` já vem consolidado.
+- A view consolidada "Por Equipe" da proposta mãe passou a chamar `renderFundingAdjustments(consol.calc)`, corrigindo o caso em que a mãe possui subpropostas (ESP/DAP) mas nenhum item próprio e os botões não apareciam em nenhuma visão.
+- Removido o gate antigo `calc.dist && FOMENTO.has(...)`, que ficava `null` quando a mãe não tem itens próprios.
+- Nenhuma fórmula de `CALC`/`VAL`/`FUNDING`/`FUNDING_POLICY` foi alterada; os otimizadores continuam podendo redistribuir itens entre subpropostas e trocar a fonte pagadora sem mudar o valor total.
+- Detalhes: `IMPLEMENTATION_LOG_CODEX_V047_SIDEBAR_OPTIMIZER_FIX.md`.
+
 Quick checks:
 - Source branch clean before promotion.
 - Target `main` prepared from `origin/main`.
