@@ -206,6 +206,16 @@ V48 reescrita do otimizador de origem financeira:
 - Nenhuma fórmula de `CALC`/`FUNDING_POLICY` alterada; horas/quantidades inteiras, consultoria/matp/indiretos em EP preservados.
 - Detalhes: `IMPLEMENTATION_LOG_CODEX_V048_FUNDING_OPTIMIZER_REWORK.md`.
 
+V49 botão único de distribuição EP/EB/SN:
+- Unificou os dois otimizadores em um só botão "Otimizar distribuição (EP/EB/SN)" (`FUNDING.optimizeAll`).
+- Ordem: completa a contrapartida econômica (SENAI) adicionando HH econômico para fechar 25% do total final, depois distribui o pool financeiro entre EP/EB maximizando a EMBRAPII até a meta (resto na Empresa), e distribui o econômico por macroentrega.
+- Invariante novo: o valor FINANCEIRO direto de cada rubrica não muda (guard de `dirFin`); adicionar contrapartida econômica é permitido (aumenta o total), alterar o financeiro não.
+- Corrige o EP inchado: com o econômico trazido para 25%, o EP volta a ~42% e o EB a ~33%.
+- Núcleo econômico extraído para `VAL._addEconomicContrapartida` (sem render/toast).
+- Sidebar passou a mostrar um botão único; `optimizeEco`/`optimizeFinancialOrigins` continuam definidos mas não são mais acionados.
+- Nenhuma fórmula de `CALC`/`FUNDING_POLICY` alterada.
+- Detalhes: `IMPLEMENTATION_LOG_CODEX_V049_UNIFIED_DISTRIBUTION.md`.
+
 Quick checks:
 - Source branch clean before promotion.
 - Target `main` prepared from `origin/main`.

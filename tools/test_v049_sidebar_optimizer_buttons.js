@@ -4,7 +4,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const repoRoot = path.resolve(__dirname, '..');
-const htmlPath = path.join(repoRoot, 'app', 'ISIB&F_precificação_de_projetos_v048.html');
+const htmlPath = path.join(repoRoot, 'app', 'ISIB&F_precificação_de_projetos_v049.html');
 const html = fs.readFileSync(htmlPath, 'utf8');
 
 function extractFunctionDeclaration(source, name) {
@@ -117,40 +117,41 @@ function calcFixture(extra = {}) {
   assert.equal(ctx.renderFundingAdjustments(calcFixture()), '', 'Com totalProj=0 o bloco deve ser vazio');
 }
 
-// 2c) Déficit de horas econômicas: botão "Otimizar HH Técnico" aparece.
+// 2c) Déficit de contrapartida econômica: botão unificado "Otimizar distribuição (EP/EB/SN)" aparece.
 {
   const ctx = buildContext({
     VAL: {
       embrapiiScope: () => ({ totalFin: 100000, totalEco: 20000 }),
-      economicOptimizationStatus: () => ({ visible: true, reason: 'Faltam horas econômicas', deficit: -500 })
+      economicOptimizationStatus: () => ({ visible: true, reason: 'Faltam R$ 5.000 de aporte econômico.', deficit: 5000 })
     }
   });
   const out = ctx.renderFundingAdjustments(calcFixture());
-  assert.match(out, /onclick="VAL\.optimizeEco\(\)"/, 'Botão Otimizar HH Técnico deve aparecer com déficit');
-  assert.match(out, /Otimizar HH Técnico/);
+  assert.match(out, /onclick="FUNDING\.optimizeAll\(\)"/, 'Botão unificado deve aparecer com déficit econômico');
+  assert.match(out, /Otimizar distribuição \(EP\/EB\/SN\)/);
+  assert.doesNotMatch(out, /VAL\.optimizeEco\(\)/, 'botão antigo de HH não deve mais existir');
 }
 
-// 2d) Origens financeiras passíveis de otimização: botão "Otimizar origem financeira" aparece.
+// 2d) Distribuição financeira fora da meta: botão unificado aparece.
 {
   const ctx = buildContext({
-    FUNDING: { optimizationStatus: () => ({ visible: true, blocked: false, reason: '' }) }
+    FUNDING: { optimizationStatus: () => ({ visible: true, blocked: false, reason: 'Distribuição financeira EP/EB fora da meta.' }) }
   });
   const out = ctx.renderFundingAdjustments(calcFixture());
-  assert.match(out, /onclick="FUNDING\.optimizeFinancialOrigins\(\)"/, 'Botão Otimizar origem financeira deve aparecer');
-  assert.match(out, /Otimizar origem financeira/);
+  assert.match(out, /onclick="FUNDING\.optimizeAll\(\)"/, 'Botão unificado deve aparecer com EP/EB fora da meta');
+  assert.doesNotMatch(out, /FUNDING\.optimizeFinancialOrigins\(\)/, 'botão antigo de origem não deve mais existir');
 }
 
-// 2e) Origem financeira bloqueada: mostra motivo, sem renderizar o botão de ação.
+// 2e) Bloqueado (itens sem macroentrega): mostra motivo, sem botão de ação.
 {
   const ctx = buildContext({
-    FUNDING: { optimizationStatus: () => ({ visible: false, blocked: true, reason: 'Bloqueado: itens fracionários' }) }
+    FUNDING: { optimizationStatus: () => ({ visible: false, blocked: true, reason: 'Atribua todos os itens às macroentregas.' }) }
   });
   const out = ctx.renderFundingAdjustments(calcFixture());
-  assert.doesNotMatch(out, /onclick="FUNDING\.optimizeFinancialOrigins\(\)"/);
-  assert.match(out, /Bloqueado: itens fracionários/);
+  assert.doesNotMatch(out, /onclick="FUNDING\.optimizeAll\(\)"/, 'bloqueado não mostra botão');
+  assert.match(out, /Atribua todos os itens às macroentregas\./);
 }
 
-// 2f) Tudo dentro da meta: mostra apenas o selo "Cota SN Atingida".
+// 2f) Tudo dentro da meta: mostra o selo "Distribuição EP/EB/SN nas metas", sem botão.
 {
   const ctx = buildContext({
     VAL: {
@@ -160,24 +161,23 @@ function calcFixture(extra = {}) {
     FUNDING: { optimizationStatus: () => ({ visible: false, blocked: false, reason: '' }) }
   });
   const out = ctx.renderFundingAdjustments(calcFixture());
-  assert.match(out, /Cota SN Atingida/);
-  assert.doesNotMatch(out, /onclick="VAL\.optimizeEco\(\)"/);
-  assert.doesNotMatch(out, /onclick="FUNDING\.optimizeFinancialOrigins\(\)"/);
+  assert.match(out, /Distribuição EP\/EB\/SN nas metas/);
+  assert.doesNotMatch(out, /onclick="FUNDING\.optimizeAll\(\)"/);
 }
 
-// 2g) Funciona tanto com calc próprio (sem .dist) quanto com consol.calc:
+// 2g) Funciona com calc próprio (sem .dist) e com consol.calc:
 // a função nunca depende de calc.dist, apenas de calc.config (com fallback STATE.config).
 {
   const ctx = buildContext({
     VAL: {
       embrapiiScope: () => ({ totalFin: 100000, totalEco: 20000 }),
-      economicOptimizationStatus: () => ({ visible: true, reason: 'Faltam horas econômicas', deficit: -500 })
+      economicOptimizationStatus: () => ({ visible: true, reason: 'Faltam R$ 5.000 de aporte econômico.', deficit: 5000 })
     }
   });
   const calcSemDist = { config: { ep_pct: 0.42, eb_pct: 0.33, sn_pct: 0.25 } };
   assert.doesNotThrow(() => ctx.renderFundingAdjustments(calcSemDist));
   const out = ctx.renderFundingAdjustments(calcSemDist);
-  assert.match(out, /Otimizar HH Técnico/);
+  assert.match(out, /onclick="FUNDING\.optimizeAll\(\)"/);
 }
 
-console.log('test_v048_sidebar_optimizer_buttons: OK');
+console.log('test_v049_sidebar_optimizer_buttons: OK');
