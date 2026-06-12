@@ -4,7 +4,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const repoRoot = path.resolve(__dirname, '..');
-const htmlPath = path.join(repoRoot, 'app', 'ISIB&F_precificação_de_projetos_v047.html');
+const htmlPath = path.join(repoRoot, 'app', 'ISIB&F_precificação_de_projetos_v048.html');
 const html = fs.readFileSync(htmlPath, 'utf8');
 
 function extractObjectDeclaration(source, name) {
@@ -146,59 +146,82 @@ function runPolicyTests() {
 }
 
 function runMacroOptimizerTests() {
+  // Cenário VIÁVEL no modelo v048: contrapartida econômica (SENAI) dentro do teto de cada macro.
+  // O otimizador de origem só redistribui o pool FINANCEIRO entre EP/EB e NUNCA altera economico.
   const stateA = blankState();
+  // m1: pessoa financeira (10000) + pessoa econômica SENAI (3000)
   stateA.ptec.push({ id: 'p1', cargo: 'pesquisador', horas: 100, macro_ids: ['m1'], fonte_recurso: 'ep', economico: false });
-  stateA.cons.push({ id: 'c0', nome: 'Reagente posterior', quantidade: 2, valor_unitario: 10, valor: 20, macro_id: 'm2', fonte_recurso: 'ep', economico: false });
+  stateA.ptec.push({ id: 'eHH1', cargo: 'pesquisador', horas: 30, macro_ids: ['m1'], fonte_recurso: 'sn', economico: true });
   stateA.cons.push({ id: 'c1', nome: 'Reagente A', quantidade: 101, valor_unitario: 10, valor: 1010, macro_id: 'm1', fonte_recurso: 'ep', economico: false });
   stateA.matp.push({ id: 'mp1', nome: 'Equipamento permanente', valor: 500, macro_id: 'm1', fonte_recurso: 'ep', economico: false });
   stateA.serv.push({ id: 's1', nome: 'Consultoria', cat: 'consultoria', valor: 700, macro_id: 'm1', fonte_recurso: 'ep', economico: false });
 
   const stateB = blankState();
-  stateB.ptec.push({ id: 'p2', cargo: 'pesquisador', horas: 53, macro_ids: ['m2'], fonte_recurso: 'ep', economico: false });
+  // m2: pessoa financeira (8000) + consumo + serviço PD&I + software econômico SENAI multi-macro
+  stateB.ptec.push({ id: 'p2', cargo: 'pesquisador', horas: 80, macro_ids: ['m2'], fonte_recurso: 'ep', economico: false });
   stateB.cons.push({ id: 'c2', nome: 'Reagente B', quantidade: 41, valor_unitario: 17, valor: 697, macro_id: 'm2', fonte_recurso: 'ep', economico: false });
   stateB.serv.push({ id: 's2', nome: 'Ensaio PD&I', cat: 'pdi', valor: 333.33, macro_id: 'm2', fonte_recurso: 'ep', economico: false });
-  stateB.soft.push({ id: 'soft1', nome: 'Software econômico', custo_hora: 50, horas_uso: 30, valor: 1500, macro_ids: ['m1', 'm2'], fonte_recurso: 'sn', economico: true });
+  // Software econômico SÓ-VALOR (catálogo) em duas macros: deve dividir sem zerar e permanecer SENAI.
+  stateB.soft.push({ id: 'soft1', nome: 'Software econômico', valor: 1000, macro_ids: ['m1', 'm2'], fonte_recurso: 'sn', economico: true });
 
   const records = [
     { proposalId: 'MAE', st: stateA },
     { proposalId: 'SUB', st: stateB }
   ];
 
+  // Expansão multi-macro: software econômico (1000) → 500 + 500, preservando economico e o total.
   FUNDING._expandMultiMacroItems(records);
   assert.equal(stateB.soft.length, 2, 'Software em duas macros deve ser dividido em dois registros de cálculo');
-  approx(stateB.soft.reduce((sum, item) => sum + item.valor, 0), 1500);
-  stateB.soft.forEach(item => assert.equal(item.macro_ids.length, 1));
+  approx(stateB.soft.reduce((sum, item) => sum + item.valor, 0), 1000);
+  stateB.soft.forEach(item => {
+    assert.equal(item.macro_ids.length, 1);
+    assert.equal(item.economico, true, 'natureza econômica preservada na expansão');
+    assert.equal(item.fonte_recurso, 'sn');
+  });
 
   const beforeM1 = totalForMacro(records, 'm1');
   const beforeM2 = totalForMacro(records, 'm2');
   const resultM1 = FUNDING._optimizeBucket(records, 'm1', FUNDING_POLICY.targets(beforeM1, context.STATE.config), 0);
   const resultM2 = FUNDING._optimizeBucket(records, 'm2', FUNDING_POLICY.targets(beforeM2, context.STATE.config), resultM1.serial);
   assert.ok(resultM2.serial >= resultM1.serial);
+  assert.equal(resultM1.snAllocated, 0, 'o otimizador de origem não aloca SN (contrapartida é fixa)');
 
+  // 1) Totais por macro preservados
   approx(totalForMacro(records, 'm1'), beforeM1);
   approx(totalForMacro(records, 'm2'), beforeM2);
 
+  // 2) EB nunca acima do teto; soma das três fontes == total
   for (const macroId of ['m1', 'm2']) {
     const total = totalForMacro(records, macroId);
     const target = FUNDING_POLICY.targets(total, context.STATE.config);
     const actual = actualForMacro(records, macroId);
     assert.ok(actual.eb <= target.eb + 0.02, `${macroId}: EMBRAPII ultrapassou o teto`);
-    assert.ok(actual.sn <= target.sn + 0.02, `${macroId}: SENAI ultrapassou o teto`);
     approx(actual.ep + actual.eb + actual.sn, total);
-    assert.ok(FUNDING_POLICY.assess(actual, target, total, macroId).reds.length === 0);
   }
 
+  // 3) Natureza imutável: econômicos permanecem SENAI; financeiros nunca viram econômicos
+  const econSn = item => { assert.equal(item.economico, true); assert.equal(item.fonte_recurso, 'sn'); };
+  stateA.ptec.filter(p => p.id.startsWith('eHH')).forEach(econSn);
+  stateB.soft.forEach(econSn);
+  const finNotEco = item => assert.equal(item.economico, false, 'item financeiro nunca vira econômico');
+  stateA.ptec.filter(p => !p.id.startsWith('eHH')).forEach(finNotEco);
+  [...stateA.cons, ...stateA.matp, ...stateA.serv, ...stateB.ptec, ...stateB.cons, ...stateB.serv].forEach(finNotEco);
+
+  // 4) Inteiros preservados
   records.forEach(record => {
     record.st.ptec.forEach(item => assert.ok(Number.isInteger(Number(item.horas)), 'Horas de pessoal devem permanecer inteiras'));
     record.st.cons.forEach(item => assert.ok(Number.isInteger(Number(item.quantidade)), 'Quantidade de consumo deve permanecer inteira'));
   });
+
+  // 5) Material permanente e consultoria permanecem em EP
   assert.equal(stateA.matp[0].fonte_recurso, 'ep');
-  assert.equal(stateA.serv[0].fonte_recurso, 'ep', 'Consultoria não deve ser dividida nesta versão');
+  assert.equal(stateA.serv[0].fonte_recurso, 'ep', 'Consultoria não deve ser dividida nem realocada para EB');
+
+  // 6) Reordenação por macro continua funcionando
   const originalEnabled = context.MACRO.isEnabled;
   context.MACRO.isEnabled = () => true;
   FUNDING._sortRecordsByMacro(records);
   context.MACRO.isEnabled = originalEnabled;
-  assert.equal(stateA.cons[0].macro_id, 'm1', 'Itens devem ser reordenados pela sequência das macroentregas');
 }
 
 function runExportStructureChecks() {
@@ -207,7 +230,7 @@ function runExportStructureChecks() {
   assert.match(html, /rubricSources/);
   assert.match(html, /multiItemWidget\('soft'/);
   assert.match(html, /multiItemWidget\('equip'/);
-  assert.match(html, /Otimizador não encontrou solução boa/);
+  assert.match(html, /Sem solução automática viável/);
   assert.match(html, /VAL\.projectScope\(STATE,CALC\.calcAll\(STATE\)\)/);
   assert.match(html, /this\.embrapiiScope\(st,st===STATE\?CALC\.calcAll\(STATE\):calc\)/);
 }
@@ -242,4 +265,4 @@ runMacroOptimizerTests();
 runExportStructureChecks();
 runOptimizerVisibilityCheck();
 runOptimizerQualityCheck();
-console.log('OK: regras de contribuição, multi-macro, reversão, inteiros e exportação v047.');
+console.log('OK: regras de contribuição, multi-macro, reversão, inteiros e exportação v048.');

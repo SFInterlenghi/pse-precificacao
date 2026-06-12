@@ -4,7 +4,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const repoRoot = path.resolve(__dirname, '..');
-const htmlPath = path.join(repoRoot, 'app', 'ISIB&F_precificação_de_projetos_v047.html');
+const htmlPath = path.join(repoRoot, 'app', 'ISIB&F_precificação_de_projetos_v048.html');
 const html = fs.readFileSync(htmlPath, 'utf8');
 
 function extractFunctionDeclaration(source, name) {
@@ -180,4 +180,4 @@ function calcFixture(extra = {}) {
   assert.match(out, /Otimizar HH Técnico/);
 }
 
-console.log('test_v047_sidebar_optimizer_buttons: OK');
+console.log('test_v048_sidebar_optimizer_buttons: OK');

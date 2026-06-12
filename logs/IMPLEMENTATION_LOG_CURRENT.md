@@ -195,6 +195,17 @@ V47 botões de otimização na mãe consolidada:
 - Nenhuma fórmula de `CALC`/`VAL`/`FUNDING`/`FUNDING_POLICY` foi alterada; os otimizadores continuam podendo redistribuir itens entre subpropostas e trocar a fonte pagadora sem mudar o valor total.
 - Detalhes: `IMPLEMENTATION_LOG_CODEX_V047_SIDEBAR_OPTIMIZER_FIX.md`.
 
+V48 reescrita do otimizador de origem financeira:
+- Correção da auditoria reportada: o otimizador inflava o total, convertia itens SENAI em EB/Empresa, fragmentava sem limite e não tinha caminho de "sem solução".
+- `_optimizeBucket` agora pula itens econômicos (nunca altera `economico`) e só redistribui o pool financeiro entre EP e EB; não aloca mais SN.
+- Novo `_defragment`/`_mergeFragments`: remescla fragmentos de execuções anteriores antes de otimizar → idempotência (rodar duas vezes dá o mesmo resultado; fim das micro-frações).
+- `_expandMultiMacroItems` divide por duração em unidades inteiras por maior-resto, preservando o total; trata software só-`valor` (catálogo) sem zerar e preserva `economico`.
+- Guard reforçado: cancela e reverte se a contrapartida econômica (`totalEco`) mudar, não só o total geral.
+- Novo `_assessResult` + diálogo "Sem solução automática viável" com oferta de reverter ao estado original quando EB/SN estouram teto ou EP excede 7 p.p.
+- `optimizationStatus` mostra o botão de origem só para desvio EP/EB ou custos sem origem (falta de SENAI é do otimizador de HH econômico).
+- Nenhuma fórmula de `CALC`/`FUNDING_POLICY` alterada; horas/quantidades inteiras, consultoria/matp/indiretos em EP preservados.
+- Detalhes: `IMPLEMENTATION_LOG_CODEX_V048_FUNDING_OPTIMIZER_REWORK.md`.
+
 Quick checks:
 - Source branch clean before promotion.
 - Target `main` prepared from `origin/main`.
