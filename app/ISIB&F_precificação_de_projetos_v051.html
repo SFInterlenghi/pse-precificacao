@@ -3523,6 +3523,33 @@ const FOMENTO = {
     if(arr.includes('anp')||arr.includes('aneel')||arr.includes('petrobras')) return 500;
     if(arr.includes('embrapii')) return 200;
     return 500;
+  },
+  // ── Tier EMBRAPII × distribuição (item 10) ──────────────────────────────
+  // Teto de EB por categoria: CG 33% (sem teto específico → alvo padrão), AA1 25%, AA2 20%.
+  tierEbCap(calc){ const t=this.embrapiiTier(calc); return t.id==='aa2'?0.20:(t.id==='aa1'?0.25:0.33); },
+  // Distribuição EP/EB/SN da categoria: EB = teto do tier; SN = 25% (puro) / 17% (combo regulado);
+  // EP = o restante (≥ 50% em todos os combos). Observação: EP+EB é constante por cenário
+  // (75% puro / 83% combo), então o tier depende só de totalFin — sem oscilação.
+  tierDistribution(meta, calc){
+    const eb=this.tierEbCap(calc);
+    const sn=this.isEmbrapiiRegulatedCombo(meta)?0.17:0.25;
+    return { ep_pct:Math.round((1-eb-sn)*1e6)/1e6, eb_pct:eb, sn_pct:sn };
+  },
+  // Aplica a distribuição da categoria QUANDO o tier muda (CG↔AA1↔AA2), preservando edições do
+  // usuário dentro da mesma categoria. Marca persistida em meta._embrapii_tier. Retorna
+  // {tier,prev,dist} se ajustou, ou false. Na primeira observação (prev nulo) só registra o marcador
+  // (não sobrescreve config carregado/criado — violações de teto são corrigidas pela migração/validação).
+  syncTierDistribution(st, calc){
+    if(!this.has(st.meta,'embrapii')||!['mae','direta'].includes(st.meta.tipo_proposta)) return false;
+    if(!(calc&&calc.totalFin>0)) return false;
+    const tier=this.embrapiiTier(calc).id;
+    const prev=st.meta._embrapii_tier;
+    if(prev===tier) return false;
+    st.meta._embrapii_tier=tier;
+    if(prev==null) return false;
+    const dist=this.tierDistribution(st.meta, calc);
+    st.config.ep_pct=dist.ep_pct; st.config.eb_pct=dist.eb_pct; st.config.sn_pct=dist.sn_pct;
+    return { tier, prev, dist };
   }
 };
 
@@ -4224,6 +4251,9 @@ const FUNDING = {
       this._restoreRevisionBackup(revisionBackups);
       return toast(eco.error,'err',8000);
     }
+    // Adicionar HH econômico pode cruzar a faixa de tier (ex.: <5M → ≥5M). Reavalia a categoria e
+    // ajusta a distribuição (EB ao teto do tier, EP absorve) ANTES de distribuir o financeiro.
+    FOMENTO.syncTierDistribution(STATE, CALC.calcAll(STATE));
     // Etapa 2 — distribuição: desfragmenta, divide multi-macro e aloca EP/EB por macro (EB máx até a meta).
     this._defragment(records);
     if(MACRO.isEnabled(STATE.meta)) this._expandMultiMacroItems(records);
@@ -6783,6 +6813,11 @@ const UI={
   },
   afterChange(){
     DB.markDirty('alterações não salvas no DB');
+    // Tier EMBRAPII ao vivo: ao cruzar de categoria (CG↔AA1↔AA2), ajusta a distribuição EP/EB/SN.
+    try{
+      const _tc = FOMENTO.syncTierDistribution(STATE, CALC.calcAll(STATE));
+      if(_tc) toast(`Projeto agora é ${FOMENTO.embrapiiTier(CALC.calcAll(STATE)).label}. Distribuição ajustada para EP ${fmt_pct(_tc.dist.ep_pct)} · EB ${fmt_pct(_tc.dist.eb_pct)} · SN ${fmt_pct(_tc.dist.sn_pct)}.`,'ok',6000);
+    }catch(e){}
     // v10: Track validation resolution
     const prevReds = this._lastReds || [];
     renderResume();renderVal();updateTitleBar();
@@ -9395,6 +9430,23 @@ const DB = {
       cfg.ep_pct=d.ep_pct; cfg.eb_pct=d.eb_pct; cfg.sn_pct=d.sn_pct;
       this._logMigration(rec, `Distribuição EP/EB/SN ajustada de ${old} para ${fmt_pct(d.ep_pct)}/${fmt_pct(d.eb_pct)}/${fmt_pct(d.sn_pct)} (EMBRAPII exige EP ≥ 50% em combo regulado).`);
       changes++;
+    }
+    // EMBRAPII: alinha a distribuição ao tier (categoria) e registra o marcador; corrige EB acima do
+    // teto do tier em dados legados (Alta Alavancagem 1/2).
+    if(cfg && FOMENTO.has(meta,'embrapii') && ['mae','direta'].includes(meta.tipo_proposta)){
+      try{
+        const c = CALC.calcAll(rec.state);
+        const tier = FOMENTO.embrapiiTier(c);
+        meta._embrapii_tier = tier.id;
+        const cap = FOMENTO.tierEbCap(c);
+        if((cfg.eb_pct||0) > cap + 0.001){
+          const d = FOMENTO.tierDistribution(meta, c);
+          const old = `${fmt_pct(cfg.ep_pct||0)}/${fmt_pct(cfg.eb_pct||0)}/${fmt_pct(cfg.sn_pct||0)}`;
+          cfg.ep_pct=d.ep_pct; cfg.eb_pct=d.eb_pct; cfg.sn_pct=d.sn_pct;
+          this._logMigration(rec, `Distribuição ajustada de ${old} para ${fmt_pct(d.ep_pct)}/${fmt_pct(d.eb_pct)}/${fmt_pct(d.sn_pct)} (${tier.label}: EB não pode exceder ${fmt_pct(cap)}).`);
+          changes++;
+        }
+      }catch(e){}
     }
     return changes;
   },

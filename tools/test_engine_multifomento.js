@@ -83,4 +83,35 @@ ok('diária Petrobras=500', E.FOMENTO.defaultDiaria({ fomentos: ['petrobras'] })
 ok('diária EMBRAPII=200', E.FOMENTO.defaultDiaria({ fomentos: ['embrapii'] }) === 200);
 ok('diária combo regulado=500', E.FOMENTO.defaultDiaria({ fomentos: ['embrapii', 'anp'] }) === 500);
 
+// ── Tier × distribuição (item 10): EB = teto do tier; SN 25/17; EP = resto ──
+const TD = (fomentos, total) => E.FOMENTO.tierDistribution({ fomentos }, { total });
+const eq3 = (d, ep, eb, sn) => r2(d.ep_pct) === ep && r2(d.eb_pct) === eb && r2(d.sn_pct) === sn;
+// Standalone EMBRAPII
+ok('CG puro 42/33/25', eq3(TD(['embrapii'], 1e6), 0.42, 0.33, 0.25));
+ok('AA1 puro 50/25/25', eq3(TD(['embrapii'], 7e6), 0.50, 0.25, 0.25));
+ok('AA2 puro 55/20/25', eq3(TD(['embrapii'], 12e6), 0.55, 0.20, 0.25));
+// Combo EMBRAPII+regulado
+ok('CG combo 50/33/17', eq3(TD(['embrapii', 'anp'], 1e6), 0.50, 0.33, 0.17));
+ok('AA1 combo 58/25/17', eq3(TD(['embrapii', 'anp'], 7e6), 0.58, 0.25, 0.17));
+ok('AA2 combo 63/20/17', eq3(TD(['embrapii', 'anp'], 12e6), 0.63, 0.20, 0.17));
+// EP nunca abaixo de 50% nos combos
+['anp'].forEach(() => {
+  ok('combo CG EP≥50', TD(['embrapii', 'anp'], 1e6).ep_pct >= 0.50);
+  ok('combo AA2 EP≥50', TD(['embrapii', 'anp'], 12e6).ep_pct >= 0.50);
+});
+
+// ── syncTierDistribution: troca ao cruzar categoria, preserva dentro da categoria ──
+{
+  const st = blankState(); st.meta.fomentos = ['embrapii']; st.meta.fomento = 'embrapii';
+  st.config.ep_pct = 0.42; st.config.eb_pct = 0.33; st.config.sn_pct = 0.25;
+  // primeira observação (CG): só marca, não altera (totalFin>0 exigido pelo guard)
+  ok('sync 1ª obs não altera', E.FOMENTO.syncTierDistribution(st, { totalFin: 1, total: 1e6 }) === false && st.config.eb_pct === 0.33);
+  // dentro de CG, edição preservada
+  st.config.eb_pct = 0.30; st.config.ep_pct = 0.45;
+  ok('sync dentro da categoria preserva', E.FOMENTO.syncTierDistribution(st, { totalFin: 1, total: 2e6 }) === false && st.config.eb_pct === 0.30);
+  // cruza para AA1 → snap 50/25/25
+  const r = E.FOMENTO.syncTierDistribution(st, { totalFin: 1, total: 7e6 });
+  ok('sync cruza p/ AA1 ajusta', r && r.tier === 'aa1' && r2(st.config.eb_pct) === 0.25 && r2(st.config.ep_pct) === 0.50);
+}
+
 console.log(`test_engine_multifomento: OK (${n} asserções)`);

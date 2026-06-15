@@ -58,10 +58,21 @@ let n = 0; const ok = (l, c) => { n++; assert.ok(c, 'FALHOU: ' + l); };
   const c = DB.migrateFomentoRules(rec);
   ok('EP≥50% preservado (sem mudança)', c === 0 && rec.state.config.ep_pct === 0.55);
 }
-// Proposta single-fomento válida → nenhuma mudança
+// Proposta single-fomento (ANP) válida → nenhuma mudança
 {
   const rec = { state: { meta: { fomentos: ['anp'] }, config: { ep_pct: 0.42, eb_pct: 0.33, sn_pct: 0.25 } } };
-  ok('single-fomento intacto', DB.migrateFomentoRules(rec) === 0);
+  ok('single-fomento ANP intacto', DB.migrateFomentoRules(rec) === 0);
+}
+// EMBRAPII legado Alta Alavancagem 1 (≥R$5M) com EB acima do teto → alinhado a 50/25/25
+{
+  const st = { meta: { fomentos: ['embrapii'], tipo_proposta: 'direta', tipo_proj: 'pdi', duracao: 18, macroentregas: [] },
+    config: { ep_pct: 0.42, eb_pct: 0.33, sn_pct: 0.25, suporte_pct: 0.15 },
+    ptec: [{ id: 'p', cargo: 'pesquisador_qms_iv', horas: 30000, meses: 18, enc: true, economico: false }],
+    padm: [], viagens: [], soft: [], equip: [], cons: [], serv: [], matp: [] };
+  const rec = { state: st };
+  const changes = DB.migrateFomentoRules(rec);
+  ok('AA1 legado ajustado (EB≤25%)', changes >= 1 && st.config.eb_pct === 0.25 && st.config.ep_pct === 0.50 && st.config.sn_pct === 0.25);
+  ok('marcador de tier gravado', st.meta._embrapii_tier === 'aa1');
 }
 
 console.log(`test_engine_migration: OK (${n} asserções)`);
