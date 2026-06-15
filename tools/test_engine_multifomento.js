@@ -76,4 +76,11 @@ ok('embrapii+anp valida teto DOA', has(valOf(['embrapii', 'anp'], { ptec: ptec()
   ok('embrapii default EP=42', d2.ep_pct === 0.42 && d2.sn_pct === 0.25);
 }
 
+// ── Diária pré-preenchida por fomento (default, não teto) ──
+ok('diária ANP=500', E.FOMENTO.defaultDiaria({ fomentos: ['anp'] }) === 500);
+ok('diária ANEEL=500', E.FOMENTO.defaultDiaria({ fomentos: ['aneel'] }) === 500);
+ok('diária Petrobras=500', E.FOMENTO.defaultDiaria({ fomentos: ['petrobras'] }) === 500);
+ok('diária EMBRAPII=200', E.FOMENTO.defaultDiaria({ fomentos: ['embrapii'] }) === 200);
+ok('diária combo regulado=500', E.FOMENTO.defaultDiaria({ fomentos: ['embrapii', 'anp'] }) === 500);
+
 console.log(`test_engine_multifomento: OK (${n} asserções)`);

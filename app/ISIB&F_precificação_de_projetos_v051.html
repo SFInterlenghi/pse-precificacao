@@ -3515,7 +3515,15 @@ const FOMENTO = {
   defaultDistribution(meta){
     return this.isEmbrapiiRegulatedCombo(meta) ? {ep_pct:0.50,eb_pct:0.33,sn_pct:0.17} : {ep_pct:0.42,eb_pct:0.33,sn_pct:0.25};
   },
-  EMBRAPII_COMBO_EP_MIN:0.50
+  EMBRAPII_COMBO_EP_MIN:0.50,
+  // Valor de diária PRÉ-PREENCHIDO ao criar uma viagem (não é teto): R$500 em setor regulado
+  // (ANP/ANEEL/Petrobras), R$200 em EMBRAPII puro. O teto de validação (R$900 ANP) é independente.
+  defaultDiaria(meta){
+    const arr=this.getSelected(meta);
+    if(arr.includes('anp')||arr.includes('aneel')||arr.includes('petrobras')) return 500;
+    if(arr.includes('embrapii')) return 200;
+    return 500;
+  }
 };
 
 const APPROVERS = {
@@ -5114,7 +5122,7 @@ const VAL={
         const finSemSn = embScope.totalFin; const totalProjetoDesejado = finSemSn / (calc.config.ep_pct + calc.config.eb_pct);
         const ecoDesejado = totalProjetoDesejado * calc.config.sn_pct; const diffEco = ecoDesejado - embScope.totalEco;
         if (diffEco < -100) yellows.push({sec:'sec-config', msg:`O aporte econômico atual (${fmt_r(embScope.totalEco)}) está acima do necessário para bater a meta de ${fmt_pct(calc.config.sn_pct)} do SENAI.`});
-        if (diffEco > 100) reds.push({sec:'sec-config', msg:`Aporte econômico insuficiente: faltam ${fmt_r(diffEco)} em itens marcados como ECONÔMICO para a meta de ${fmt_pct(calc.config.sn_pct)} SENAI. Use o botão "Otimizar HH" na barra lateral.`});
+        if (diffEco > 100) reds.push({sec:'sec-config', msg:`Aporte econômico insuficiente: faltam ${fmt_r(diffEco)} em itens marcados como ECONÔMICO para a meta de ${fmt_pct(calc.config.sn_pct)} SENAI. Use o botão "Otimizar distribuição (EP/EB/SN)" na barra lateral.`});
         if(embScope.ebValue > 2999999) yellows.push({sec:'sec-config', msg:`Contrapartida EMBRAPII de ${fmt_r(embScope.ebValue)} ultrapassa R$ 2.999.999,00 — projeto deve passar por aprovação da diretoria da EMBRAPII.`});
         if(embScope.matpTotal > 0 && embScope.projectTotal < 5000000){
           reds.push({sec:'sec-matp', msg:`Compra de equipamentos/material permanente de ${fmt_r(embScope.matpTotal)} não permitida para projeto EMBRAPII com valor total de ${fmt_r(embScope.projectTotal)}. Abaixo de R$ 5.000.000,00 não pode haver compra de equipamento.`});
@@ -5716,7 +5724,7 @@ const PADM={
 const VIAG={
   add(){
     DB.maybeAutoRevisionSnapshot();
-    const item = {id:STATE.uid(),destino:'',data_ida:'',data_volta:'',n_pessoas:1, valor_passagem:0,tipo:'nacional',tem_diaria:true,diaria_valor:900,diaria_dias:3, diaria_pessoas:1,voo_estimado:null,economico:false,fonte_recurso:'',macro_id:''};
+    const item = {id:STATE.uid(),destino:'',data_ida:'',data_volta:'',n_pessoas:1, valor_passagem:0,tipo:'nacional',tem_diaria:true,diaria_valor:FOMENTO.defaultDiaria(STATE.meta),diaria_dias:3, diaria_pessoas:1,voo_estimado:null,economico:false,fonte_recurso:'',macro_id:''};
     STATE.viagens.push(item);
     AUDIT.log('edicao', 'viag', item.id, 'Adicionou viagem');
     this.render();UI.afterChange();
