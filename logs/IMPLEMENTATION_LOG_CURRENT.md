@@ -224,6 +224,14 @@ V50 viabilidade por projeto e contrapartida por macro:
 - Nenhuma fórmula de `CALC`/`FUNDING_POLICY` alterada; `dirFin` continua invariante.
 - Detalhes: `IMPLEMENTATION_LOG_CODEX_V050_PER_MACRO_FEASIBILITY.md`.
 
+V51 auditoria pré-lançamento (multi-fomento, tiers, rede de testes):
+- Fase A: rede de segurança — harness do motor real (`tools/engine.js`), golden snapshot do CALC, 22 regras de risco no VAL.run real, runner único (`tools/run_tests.js`). Acaba com o "motor sem teste".
+- Fase B: multi-fomento — máx. 2 fomentos e ANP+Petrobras proibido; indiretos pelo regime mais restritivo (ANEEL > ANP=Petrobras > EMBRAPII), corrigindo o gap crítico de EMBRAPII+ANP que ignorava DOA/CI; EP ≥ 50% em combo EMBRAPII+regulado; UI bloqueia combos e semeia a distribuição; migração de propostas antigas para estado válido.
+- Fase C: tiers EMBRAPII — distribuição muda no instante que o projeto cruza de categoria (CG 33% / AA1 25% / AA2 20% de EB; EP absorve, ≥50% nos combos); diárias pré-preenchidas 500/200; mensagem "Otimizar HH" corrigida.
+- Fase D: teste de consolidação mãe/filha (sem dupla contagem). Suíte 9/9 verde; golden verde = single-fomento intacto.
+- Nenhuma fórmula de `CALC`/`FUNDING_POLICY` alterada na essência (calcIndirects dirigido por regime, idêntico para fomento único).
+- Detalhes: `IMPLEMENTATION_LOG_CODEX_V051_PRELAUNCH_AUDIT.md`.
+
 Quick checks:
 - Source branch clean before promotion.
 - Target `main` prepared from `origin/main`.
