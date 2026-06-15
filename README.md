@@ -7,7 +7,7 @@ de projetos de PD&I.
 A versao estavel atual e:
 
 ```text
-app/ISIB&F_precificação_de_projetos_v037.html
+app/ISIB&F_precificação_de_projetos_v051.html
 ```
 
 > Observacao: os arquivos HTML oficiais usam acentos no nome. Se o terminal
@@ -33,7 +33,7 @@ de custos, regras de fomento e colaboracao entre equipes. Ela centraliza:
 1. Abra o arquivo estavel atual no navegador:
 
    ```text
-   app/ISIB&F_precificação_de_projetos_v037.html
+   app/ISIB&F_precificação_de_projetos_v051.html
    ```
 
 2. Use Edge ou Chrome para habilitar o modo `DB sincronizado`.
@@ -143,7 +143,7 @@ Nao use esse arquivo como DB vivo se ja existir um `ISIBF_DB.json` em uso.
   .gitignore
 
   app/
-    ISIB&F_precificação_de_projetos_v037.html
+    ISIB&F_precificação_de_projetos_v051.html
 
   data/
     catalog/
@@ -204,7 +204,7 @@ Nao use esse arquivo como DB vivo se ja existir um `ISIBF_DB.json` em uso.
 ```
 
 Na branch `dev`, o diretorio `app/` fica propositalmente enxuto: somente a
-versao recente de continuacao (`v037`) permanece como executavel principal.
+versao recente de continuacao (`v051`) permanece como executavel principal.
 Versoes intermediarias e experimentais ficam em `archive/outdated/` para
 consulta historica sem poluir o ponto de entrada do desenvolvimento.
 
@@ -485,7 +485,15 @@ bloqueiam, mas entram na aba de validacoes.
 
 | Versao | Arquivo | Status | Resumo |
 | --- | --- | --- | --- |
-| v037 | `app/ISIB&F_precificação_de_projetos_v037.html` | Estavel atual | Sidebar passa a exibir ticket medio financeiro/mês e ticket medio total/mês em proposta direta, subproposta e proposta mae. |
+| v051 | `app/ISIB&F_precificação_de_projetos_v051.html` | Estavel atual | Auditoria pre-lancamento: multi-fomento (max. 2; ANP+Petrobras proibido; indiretos pelo regime mais restritivo; EP>=50% em combo EMBRAPII+regulado), distribuicao por tier EMBRAPII (CG/AA1/AA2) que muda ao cruzar de categoria, diarias pre-preenchidas por fomento, migracao de propostas antigas e rede de testes automatizados do motor (`tools/`). |
+| v050 | `archive/outdated/versions/v050/...v050.html` | Arquivado em dev | Viabilidade do otimizador avaliada no nivel do projeto (corrige falso "sem solucao"); contrapartida economica distribuida por macro proporcional ao financeiro. |
+| v049 | `archive/outdated/versions/v049/...v049.html` | Arquivado em dev | Botao unico "Otimizar distribuicao (EP/EB/SN)" preservando o valor financeiro das rubricas. |
+| v048 | `archive/outdated/versions/v048/...v048.html` | Arquivado em dev | Reescrita do otimizador de origem preservando itens economicos/SENAI; idempotencia e reversao quando inviavel. |
+| v047 | `archive/outdated/versions/v047/...v047.html` | Arquivado em dev | Botoes de otimizacao passam a aparecer na proposta mae consolidada. |
+| v044–v046 | `archive/outdated/versions/...` | Arquivado em dev | Otimizadores de distribuicao financeira (EP/EB) e por macroentrega, preservando valores e horas inteiras. |
+| v040–v043 | `archive/outdated/versions/...` | Arquivado em dev | Macroentregas (fundacao, itens, XLSX, consolidacao) e auditoria de regramentos multifomento. |
+| v038–v039 | `archive/outdated/versions/...` | Arquivado em dev | Horas inteiras e h/semana Petrobras; classificacao de origem EP/EB/SN por item; boas praticas ESP. |
+| v037 | `archive/outdated/versions/ISIB&F_precificação_de_projetos_v037.html` | Arquivado em dev | Sidebar passa a exibir ticket medio financeiro/mês e ticket medio total/mês em proposta direta, subproposta e proposta mae. |
 | v036 | `archive/outdated/versions/ISIB&F_precificação_de_projetos_v036.html` | Arquivado em dev | Versionamento da v035 validada como v036 para distribuicao no OneDrive. |
 | v035 | `archive/outdated/versions/ISIB&F_precificação_de_projetos_v035.html` | Arquivado em dev | Correcao generica de metadados na mesclagem de DBs, reparo leve de `id_base` inconsistente e rascunhos de e-mail para aprovacao/revisao/aprovado sem envio automatico. |
 | v034 | `archive/outdated/versions/ISIB&F_precificação_de_projetos_v034.html` | Arquivado em dev | Promocao da v033 corrigida para nome/versionamento v034, com ajuste financeiro EMBRAPII/consolidado. |
@@ -506,9 +514,23 @@ bloqueiam, mas entram na aba de validacoes.
 - `logs/IMPLEMENTATION_LOG_CODEX_V034_RELEASE.md`
 - `logs/IMPLEMENTATION_LOG_CURRENT.md`
 
+## Testes automatizados do motor
+
+A pasta `tools/` contém uma suíte que executa o motor real (`CALC`/`VAL`/`FOMENTO`)
+fora do navegador, para travar regressão silenciosa nas fórmulas e nas regras
+regulatórias. Rode antes de qualquer release:
+
+```text
+node tools/run_tests.js
+```
+
+Cobre: golden snapshot do `CALC`, ~22 regras de risco do `VAL.run`, regras
+multi-fomento, migração de propostas e consolidação mãe/filha. Para atualizar
+o golden após uma mudança intencional de cálculo: `UPDATE_SNAPSHOTS=1 node tools/test_engine_calc_golden.js`.
+
 ## Testes manuais recomendados antes de release
 
-- Abrir v037 no Edge/Chrome.
+- Abrir v051 no Edge/Chrome (ver também `logs/CHECKLIST_V051_BROWSER.md`).
 - Conectar `ISIBF_DB.json` pelo modo `DB sincronizado`.
 - Confirmar que landing mostra status verde do DB.
 - Criar proposta direta sem fomento e configurar indiretos abaixo/acima de 30%.
@@ -524,4 +546,4 @@ bloqueiam, mas entram na aba de validacoes.
 
 ## Status atual
 
-`dev` contem a v037 com as correcoes de mesclagem, rascunhos de e-mail e tickets medios na sidebar. Promova para `main` depois da validacao da equipe.
+`dev_v038_beta_rules` contem a v051 (auditoria pre-lancamento: multi-fomento, tiers EMBRAPII, otimizador de distribuicao e rede de testes automatizados). Promovida para `main` apos a validacao manual da equipe (ver `logs/CHECKLIST_V051_BROWSER.md`).
