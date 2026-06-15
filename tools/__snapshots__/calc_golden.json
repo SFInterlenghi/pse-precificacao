@@ -1,0 +1,127 @@
+{
+  "sem": {
+    "dirFin": 255736,
+    "dirEco": 0,
+    "indsFin": 76720.8,
+    "totalFin": 332456.8,
+    "totalEco": 0,
+    "total": 332456.8,
+    "inds": [
+      {
+        "id": "sem_ind",
+        "pct": 0.3,
+        "val": 76720.8
+      }
+    ]
+  },
+  "embrapii": {
+    "dirFin": 284791,
+    "dirEco": 67500,
+    "indsFin": 52843.65,
+    "totalFin": 337634.65,
+    "totalEco": 67500,
+    "total": 405134.65,
+    "inds": [
+      {
+        "id": "suporte",
+        "pct": 0.15,
+        "val": 52843.65
+      }
+    ]
+  },
+  "anp": {
+    "dirFin": 262336,
+    "dirEco": 0,
+    "indsFin": 52467.2,
+    "totalFin": 314803.2,
+    "totalEco": 0,
+    "total": 314803.2,
+    "inds": [
+      {
+        "id": "doa",
+        "pct": 0.05,
+        "val": 13116.8
+      },
+      {
+        "id": "ci",
+        "pct": 0.15,
+        "val": 39350.4
+      }
+    ]
+  },
+  "anp_infra": {
+    "dirFin": 395736,
+    "dirEco": 0,
+    "indsFin": 79147.2,
+    "totalFin": 474883.2,
+    "totalEco": 0,
+    "total": 474883.2,
+    "inds": [
+      {
+        "id": "doa",
+        "pct": 0.05,
+        "val": 19786.8
+      },
+      {
+        "id": "ci",
+        "pct": 0.15,
+        "val": 59360.4
+      }
+    ]
+  },
+  "petrobras": {
+    "dirFin": 255736,
+    "dirEco": 0,
+    "indsFin": 51147.2,
+    "totalFin": 306883.2,
+    "totalEco": 0,
+    "total": 306883.2,
+    "inds": [
+      {
+        "id": "doa",
+        "pct": 0.05,
+        "val": 12786.8
+      },
+      {
+        "id": "ci",
+        "pct": 0.15,
+        "val": 38360.4
+      }
+    ]
+  },
+  "aneel": {
+    "dirFin": 223736,
+    "dirEco": 0,
+    "indsFin": 22373.6,
+    "totalFin": 246109.6,
+    "totalEco": 0,
+    "total": 246109.6,
+    "inds": [
+      {
+        "id": "doa_aneel",
+        "pct": 0.05,
+        "val": 11186.8
+      },
+      {
+        "id": "ci_aneel",
+        "pct": 0.05,
+        "val": 11186.8
+      }
+    ]
+  },
+  "embrapii_macro_eco": {
+    "dirFin": 135240,
+    "dirEco": 127996,
+    "indsFin": 39485.4,
+    "totalFin": 174725.4,
+    "totalEco": 127996,
+    "total": 302721.4,
+    "inds": [
+      {
+        "id": "suporte",
+        "pct": 0.15,
+        "val": 39485.4
+      }
+    ]
+  }
+}
