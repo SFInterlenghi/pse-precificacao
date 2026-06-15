@@ -4802,6 +4802,14 @@ const META={
       STATE.meta.fomentos = this._selectedFomentos();
       STATE.meta.fomento = FOMENTO.primaryFor(STATE.meta.fomentos);
     }
+    const comboErr = FOMENTO.comboError(STATE.meta);
+    if(comboErr){ toast(comboErr,'err',7000); return; }
+    // Combo EMBRAPII + regulado: força a distribuição padrão (EP 50 / EB 33 / SN 17) se a EP
+    // ainda não cumprir o piso de 50%. Acima disso o usuário pode ajustar EB/SN livremente.
+    if(FOMENTO.isEmbrapiiRegulatedCombo(STATE.meta) && (STATE.config.ep_pct||0) < FOMENTO.EMBRAPII_COMBO_EP_MIN - 0.001){
+      const d=FOMENTO.defaultDistribution(STATE.meta);
+      STATE.config.ep_pct=d.ep_pct; STATE.config.eb_pct=d.eb_pct; STATE.config.sn_pct=d.sn_pct;
+    }
     MACRO.ensureMeta(STATE.meta);
     if(!['mae','direta'].includes(tipo)||!FOMENTO.has(STATE.meta,'embrapii')) STATE.meta.precificacao_modo='tradicional';
     if(tipo==='mae') MACRO.propagateFromCurrentMother();
@@ -4835,6 +4843,11 @@ const META={
       document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('sel'));
       card.classList.add('sel');
       return;
+    }
+    if(!card.classList.contains('sel')){
+      const next=[...this._selectedFomentos().filter(v=>v!=='sem'), id];
+      const err=FOMENTO.comboError({fomentos:next});
+      if(err){ toast(err,'warn',6000); return; }
     }
     document.querySelector('[data-mode="sem"]')?.classList.remove('sel');
     card.classList.toggle('sel');
@@ -8200,9 +8213,15 @@ const NOVA = {
   _selFomento(id){
     if(id==='sem') this._fomentos = ['sem'];
     else {
-      this._fomentos = this._fomentos.filter(v=>v!=='sem');
-      this._fomentos = this._fomentos.includes(id) ? this._fomentos.filter(v=>v!==id) : [...this._fomentos, id];
-      if(!this._fomentos.length) this._fomentos = [id];
+      const has = this._fomentos.includes(id);
+      let next = has ? this._fomentos.filter(v=>v!==id) : [...this._fomentos.filter(v=>v!=='sem'), id];
+      if(!next.length) next = [id];
+      // Bloqueia combinação inválida (máx. 2 fomentos; ANP+Petrobras proibido) ao adicionar.
+      if(!has){
+        const err = FOMENTO.comboError({fomentos:next});
+        if(err){ toast(err,'warn',6000); return; }
+      }
+      this._fomentos = next;
     }
     this._fomento = FOMENTO.primaryFor(this._fomentos);
     this._renderFomento(document.getElementById('nova-tipo-proj').value);
@@ -8368,6 +8387,8 @@ const NOVA = {
     const tipo_proj= document.getElementById('nova-tipo-proj').value;
     const fomentos = FOMENTO.normalize({fomentos:this._fomentos});
     const fomento  = FOMENTO.primaryFor(fomentos);
+    const comboErr = FOMENTO.comboError({fomentos});
+    if(comboErr){ toast(comboErr,'err',7000); return; }
     const tipo_proposta = this._type;
     const elab     = document.getElementById('nova-elab').value.trim();
     const emailElab= document.getElementById('nova-email-elab').value.trim();
@@ -8410,7 +8431,8 @@ const NOVA = {
 
     STATE.meta = {titulo, empresa, fomento, fomentos, duracao, tipo_proj, tipo_proposta, equipe:equipe_direta, id_mae:null, equipe_focal,
       precificacao_modo:macroEnabled?'macroentregas':'tradicional', macroentregas:MACRO.clone(macroentregas)};
-    STATE.config = {suporte_pct:0.15,doa_pct:(tipo_proj==='infra'&&fomentos.some(id=>id==='anp'||id==='petrobras'))?0.03:0.05,ci_pct:0.15,doa_aneel_pct:0.05,ci_aneel_pct:0.05,sem_ind_pct:0.30,ep_pct:0.42,eb_pct:0.33,sn_pct:0.25,hh_legacy_ptec:false,hh_legacy_padm:false};
+    const _dist = FOMENTO.defaultDistribution({fomentos});
+    STATE.config = {suporte_pct:0.15,doa_pct:(tipo_proj==='infra'&&fomentos.some(id=>id==='anp'||id==='petrobras'))?0.03:0.05,ci_pct:0.15,doa_aneel_pct:0.05,ci_aneel_pct:0.05,sem_ind_pct:0.30,ep_pct:_dist.ep_pct,eb_pct:_dist.eb_pct,sn_pct:_dist.sn_pct,hh_legacy_ptec:false,hh_legacy_padm:false};
     STATE.ptec=[]; STATE.padm=[]; STATE.viagens=[]; STATE.soft=[];
     STATE.equip=[]; STATE.cons=[]; STATE.serv=[]; STATE.matp=[]; STATE._id=1;
     STATE.proposal = {
@@ -9315,11 +9337,12 @@ const DB = {
     APPROVERS.ensureDbUsers(this._data);
     // Ensure price_catalog exists in loaded DBs
     if(!this._data.price_catalog) this._data.price_catalog={cons:{},soft:{},equip:{},matp:{}};
-    let macroNormalized=0;
+    let macroNormalized=0, fomentoMigrated=0;
     for(const rec of Object.values(this._data.proposals||{})){
       rec.revision = rec.revision || 1;
       rec.updated_at = rec.updated_at || rec.atualizado_em || rec.criado_em || this.now();
       rec.updated_by = rec.updated_by || rec.email_elaborador || rec.email_aprovador || 'usuario_local';
+      fomentoMigrated += this.migrateFomentoRules(rec);
       let macroChanges=MACRO.normalizeState(rec.state);
       if(rec.state_base) macroChanges+=MACRO.normalizeState(rec.state_base,rec.state?.meta);
       macroNormalized+=macroChanges;
@@ -9335,7 +9358,41 @@ const DB = {
       }
     }
     const repaired = this.repairProposalMetadata(this._data);
-    if(repaired||macroNormalized) this.markDirty(`${repaired+macroNormalized} normalização(ões) de metadata`);
+    if(repaired||macroNormalized||fomentoMigrated) this.markDirty(`${repaired+macroNormalized+fomentoMigrated} normalização(ões) de metadata`);
+  },
+
+  // Migração v051: ajusta propostas antigas às regras multi-fomento (máx. 2; ANP+Petrobras
+  // proibido; EMBRAPII + setor regulado exige EP ≥ 50%). Converte para estado válido e registra
+  // no histórico. Retorna o nº de ajustes feitos no registro.
+  migrateFomentoRules(rec){
+    const meta = rec?.state?.meta; if(!meta) return 0;
+    FOMENTO.syncMeta(meta);
+    let changes = 0;
+    const before = FOMENTO.getSelected(meta);
+    let arr = before.slice();
+    // ANP + Petrobras → mantém apenas ANP (regras equivalentes).
+    if(arr.includes('anp') && arr.includes('petrobras')) arr = arr.filter(v=>v!=='petrobras');
+    // Mais de 2 fomentos → preserva os 2 primeiros válidos.
+    if(arr.length > FOMENTO.MAX_FOMENTOS) arr = arr.slice(0, FOMENTO.MAX_FOMENTOS);
+    if(JSON.stringify(arr) !== JSON.stringify(before)){
+      meta.fomentos = arr; meta.fomento = FOMENTO.primaryFor(arr);
+      this._logMigration(rec, `Combinação de fomentos ajustada de [${before.join(', ')}] para [${arr.join(', ')}] (regras v051).`);
+      changes++;
+    }
+    // EMBRAPII + regulado com EP < 50% → força distribuição padrão 50/33/17.
+    const cfg = rec.state.config;
+    if(cfg && FOMENTO.isEmbrapiiRegulatedCombo(meta) && (cfg.ep_pct||0) < FOMENTO.EMBRAPII_COMBO_EP_MIN - 0.001){
+      const d = FOMENTO.defaultDistribution(meta);
+      const old = `${fmt_pct(cfg.ep_pct||0)}/${fmt_pct(cfg.eb_pct||0)}/${fmt_pct(cfg.sn_pct||0)}`;
+      cfg.ep_pct=d.ep_pct; cfg.eb_pct=d.eb_pct; cfg.sn_pct=d.sn_pct;
+      this._logMigration(rec, `Distribuição EP/EB/SN ajustada de ${old} para ${fmt_pct(d.ep_pct)}/${fmt_pct(d.eb_pct)}/${fmt_pct(d.sn_pct)} (EMBRAPII exige EP ≥ 50% em combo regulado).`);
+      changes++;
+    }
+    return changes;
+  },
+  _logMigration(rec, descricao){
+    rec.historico = rec.historico || [];
+    rec.historico.push({ acao:'migracao_fomento_v051', rubrica:null, item_id:null, descricao, por:'sistema', em:this.now(), revisao:rec.revisao_numero||0 });
   },
 
   repairProposalMetadata(db){
