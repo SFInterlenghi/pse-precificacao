@@ -216,6 +216,14 @@ V49 botão único de distribuição EP/EB/SN:
 - Nenhuma fórmula de `CALC`/`FUNDING_POLICY` alterada.
 - Detalhes: `IMPLEMENTATION_LOG_CODEX_V049_UNIFIED_DISTRIBUTION.md`.
 
+V50 viabilidade por projeto e contrapartida por macro:
+- Corrige o falso "sem solução viável" reportado na proposta "What" (3 macros), onde o resultado era ótimo no total mas uma macro ficava marginalmente acima de 25% de SN.
+- Causa: a contrapartida econômica era dividida por duração (partes iguais), mas o financeiro por macro era desigual (macro_2 tinha R$30k de consultoria a mais) → macros 1 e 3 ficavam ~0,4% acima do 25% individual, e `_assessResult` avaliava macro a macro com regra dura.
+- Fix 1: a contrapartida econômica passa a ser distribuída por macro proporcional ao financeiro de cada uma (cada macro tende a ~25%), em vez de por duração.
+- Fix 2: `_assessResult` avalia a viabilidade no nível do PROJETO (consolidado) — a meta EMBRAPII é de projeto; resíduos de arredondamento por macro não invalidam mais a distribuição.
+- Nenhuma fórmula de `CALC`/`FUNDING_POLICY` alterada; `dirFin` continua invariante.
+- Detalhes: `IMPLEMENTATION_LOG_CODEX_V050_PER_MACRO_FEASIBILITY.md`.
+
 Quick checks:
 - Source branch clean before promotion.
 - Target `main` prepared from `origin/main`.
