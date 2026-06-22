@@ -41,8 +41,8 @@ check('EMBRAPII EP<10% dispara', has(runVal(emb({ ptec: ptecFin(), config: ep(0.
 check('EMBRAPII suporte>15% dispara', has(runVal(emb({ ptec: ptecFin(), config: { suporte_pct: 0.16 } })).reds, 'Suporte Operacional'));
 // 5) Material permanente econômico (deve ser pago pela Empresa)
 check('EMBRAPII matp econômico dispara', has(runVal(emb({ ptec: ptecFin(), matp: [{ id: 'm', nome: 'Eq', valor: 1000, economico: true }] })).reds, 'só pode ser paga pela Empresa Parceira'));
-// 6) Serviços PD&I de terceiros > 30% do total
-check('EMBRAPII serv PD&I>30% dispara', has(runVal(emb({ ptec: ptecFin(100), serv: [{ id: 's', nome: 'X', cat: 'pdi', valor: 500000, economico: false }] })).reds, 'excede 30%'));
+// 6) Soma de todos os serviços de terceiros > 30% do total
+check('EMBRAPII serviços gerais>30% dispara', has(runVal(emb({ ptec: ptecFin(100), serv: [{ id: 's', nome: 'X', cat: 'tec', valor: 500000, economico: false, fonte_recurso: 'ep' }] })).reds, 'excedem 30%'));
 // 7) Aporte econômico insuficiente (meta SN)
 check('EMBRAPII aporte econômico insuficiente dispara', has(runVal(emb({ ptec: ptecFin(), config: ep(0.42, 0.33, 0.25) })).reds, 'Aporte econômico insuficiente'));
 
