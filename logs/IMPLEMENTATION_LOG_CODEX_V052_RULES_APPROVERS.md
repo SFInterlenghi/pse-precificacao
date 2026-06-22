@@ -18,12 +18,13 @@
 - EMBRAPII: serviços PD&I exigem origem EB; demais serviços exigem origem EP.
 - Combo EMBRAPII + ANP: PD&I em EB não recebe o bloqueio genérico de ANP; ANP puro mantém a proibição existente.
 
-## Proposta pendente — Boas práticas ANEEL
+## Boas práticas ANEEL
 
-- Criar subtipo estruturado de serviço `publicacao_cientifica` para taxa de publicação de artigo, evitando validação frágil por texto livre.
-- Ampliar Viagens com finalidade `congresso` e campo próprio de taxa de inscrição, mantendo passagem/diárias no mesmo registro.
-- Aplicar os avisos amarelos apenas no escopo consolidado (proposta mãe ou direta), para não exigir artigo/congresso em cada subproposta.
-- Manter valores de referência em um bloco configurável. A implementação aguarda definição dos valores mínimos e confirmação se ambos são obrigatórios ou apenas recomendados.
+- Rubrica renomeada para **Serviços de Terceiros e Outros**.
+- Categorias explícitas `publicacao` e `congresso` para taxa de publicação científica e taxa de inscrição em congresso.
+- Avisos amarelos de ausência aplicados no escopo consolidado da proposta mãe ou direta.
+- Lembrete amarelo permanente para verificar congresso, passagem e diárias associadas, sem adicionar campos à rubrica de viagens.
+- Sem valores mínimos: a checagem considera presença com valor maior que zero.
 
 ## Verificações
 
@@ -31,4 +32,3 @@
 - 10 suítes automatizadas aprovadas, incluindo 22 casos regulatórios de maior risco.
 - Novo teste v052 cobre serviços, origens, DAP e registro de aprovadores.
 - Nenhum JSON/DB, cálculo financeiro ou arquivo v051 foi modificado.
-

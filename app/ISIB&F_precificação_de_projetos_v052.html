@@ -2030,7 +2030,7 @@ input[type=radio]:checked + .tipo-prop-card .tipo-prop-icon{color:var(--gold-dee
 <div class="section" id="sec-serv">
   <div class="section-header" onclick="UI.toggle('sec-serv')">
     <span class="section-icon"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
-    <span class="section-title">Serviços de Terceiros</span>
+    <span class="section-title">Serviços de Terceiros e Outros</span>
     <span class="section-count" id="cnt-serv">0</span>
     <span class="section-total mono" id="tot-serv">R$ 0</span>
     <span class="sec-dot" id="sdot-serv" style="display:none"></span>
@@ -2039,7 +2039,7 @@ input[type=radio]:checked + .tipo-prop-card .tipo-prop-icon{color:var(--gold-dee
   <div class="section-body"><div id="list-serv"></div>
     <button class="btn btn-add btn-sm" style="margin-top:10px" onclick="SERV.add()">
       <svg class="icn icn-sm" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-      Adicionar Serviço
+      Adicionar Serviço / Outro
     </button>
   </div>
 </div>
@@ -2674,7 +2674,7 @@ const REG_DATA = {
       {type:'info', text:'Bolsas de pesquisa a alunos de cursos técnicos, graduação e pós-graduação também são elegíveis, observando a legislação aplicável.', src:'Manual EMBRAPII §8.2.i', badge:null},
       {type:'warn', text:'Verbas rescisórias só são elegíveis se ocorrerem durante a vigência do projeto. Provisionamento contábil não é permitido.', src:'Manual EMBRAPII §8.2.i', badge:null},
     ]},
-    { title:'Serviços de Terceiros (PF + PJ)', icon:'🔧', rules:[
+    { title:'Serviços de Terceiros e Outros (PF + PJ)', icon:'🔧', rules:[
       {type:'limit', text:'A soma de todos os serviços de terceiros (PF + PJ), independentemente da categoria, não pode superar 30% do valor total do projeto.', src:'Manual EMBRAPII §8.2.iv / regra operacional PSE', badge:{cls:'red', label:'máx 30% do total'}},
       {type:'limit', text:'Serviços classificados como PD&I devem ser pagos com recursos EMBRAPII. Os demais serviços devem ser pagos pela Empresa Parceira.', src:'Regra de origem de recursos EMBRAPII', badge:{cls:'red', label:'PD&I: EB · demais: EP'}},
       {type:'info', text:'Categorias elegíveis: (i) atividades de PD&I; (ii) serviços tecnológicos — ensaios, testes, certificações; (iii) outros serviços.', src:'Manual EMBRAPII §8.2.iv', badge:null},
@@ -2727,7 +2727,7 @@ const REG_DATA = {
     { title:'Equipamentos e Materiais', icon:'⚗️', rules:[
       {type:'limit', text:'Infraestrutura laboratorial (ICT): máx R$ 5.000.000 e 30% do total. Passando disso, exige Projeto Específico.', src:'§2.4 Manual ANP', badge:{cls:'red', label:'máx R$5M e 30%'}},
     ]},
-    { title:'Serviços de Terceiros', icon:'🔧', rules:[
+    { title:'Serviços de Terceiros e Outros', icon:'🔧', rules:[
       {type:'warn', text:'Contratações de terceiros para atividades centrais de PD&I exigem atenção especial à elegibilidade e justificativa técnica.', src:'Manual ANP / boa prática', badge:null},
       {type:'info', text:'Em projeto combinado EMBRAPII + ANP, serviço de PD&I deve ser alocado na contrapartida EMBRAPII; os demais serviços seguem pela Empresa Parceira.', src:'Regra de composição EMBRAPII + ANP', badge:{cls:'blue', label:'PD&I: EB · demais: EP'}},
     ]},
@@ -2744,7 +2744,7 @@ const REG_DATA = {
       {type:'limit', text:'Aquisições de equipamentos/materiais ≥ R$ 50.000 exigem pro-forma/orçamento anexado.', src:'Manual SIGITEC Petrobras', badge:{cls:'amber', label:'Pro-forma ≥ R$50k'}},
       {type:'warn', text:'Material de consumo ≥ R$ 16.000 exige memória de cálculo detalhada.', src:'Manual SIGITEC Petrobras', badge:{cls:'amber', label:'Memória ≥ R$16k'}},
     ]},
-    { title:'Serviços de Terceiros — SIGITEC Petrobras', icon:'🔧', rules:[
+    { title:'Serviços de Terceiros e Outros — SIGITEC Petrobras', icon:'🔧', rules:[
       {type:'limit', text:'É expressamente proibida a contratação de terceiros para realização de atividades centrais de PD&I.', src:'Manual SIGITEC Petrobras', badge:{cls:'red', label:'Sem PD&I Terceirizado'}},
     ]},
   ],
@@ -2755,6 +2755,11 @@ const REG_DATA = {
     ]},
     { title:'Pessoal Administrativo', icon:'🏢', rules:[
       {type:'warn', text:'Assim como na ANP, cobrar taxa administrativa (5%) e incluir analistas administrativos na rubrica de pessoal gera duplicidade de custos.', src:'Boa prática', badge:null},
+    ]},
+    { title:'Publicações e Congressos', icon:'§', rules:[
+      {type:'warn', text:'Prever valor para pagamento de taxa de publicação de artigos científicos em Serviços de Terceiros e Outros.', src:'Boa prática ANEEL', badge:{cls:'amber', label:'publicação científica'}},
+      {type:'warn', text:'Prever valor para taxa de inscrição em congresso em Serviços de Terceiros e Outros.', src:'Boa prática ANEEL', badge:{cls:'amber', label:'taxa de congresso'}},
+      {type:'warn', text:'Verificar também a previsão da viagem associada ao congresso, incluindo passagem e diárias quando aplicáveis.', src:'Boa prática ANEEL', badge:{cls:'amber', label:'conferir viagem'}},
     ]}
   ],
   geral:[
@@ -3658,7 +3663,7 @@ const BEST_PRACTICES = {
       message:'Custos indiretos/suporte próximos do limite efetivo. Revise margem e justificativa.'},
     {id:'services-high-share', label:'Serviços altos no total', enabled:false, severity:'warn', appliesTo:['all'],
       check(st,calc){ return calc.total>0 && (calc.serv_fin+calc.serv_eco)/calc.total>0.35; },
-      message:'Serviços de terceiros representam parcela alta do projeto; confirmar justificativa técnica.'},
+      message:'Serviços de Terceiros e Outros representam parcela alta do projeto; confirmar justificativa técnica.'},
   ],
   run(st,calc){
     return this.rules.filter(r=>r.enabled && r.check(st,calc)).map(r=>({sec:'sec-config', msg:typeof r.message==='function'?r.message(st,calc):r.message, severity:r.severity||'warn'}));
@@ -3696,6 +3701,21 @@ const BEST_PRACTICES = {
       }else if(total<15000){
         yellows.push({sec:'sec-cons',msg:`Boa prática DAP: “Válvulas e conexões” soma ${fmt_r(total)}, abaixo da referência de R$ 15.000,00.`});
       }
+    }
+    if(FOMENTO.has(st.meta,'aneel') && ['direta','mae'].includes(tipo)){
+      let services=[...(st.serv||[])];
+      if(tipo==='mae' && proposal.id && DB?._data){
+        TEAM.getEquipes(proposal.id).forEach(rec=>{ services.push(...(rec.state?.serv||[])); });
+      }
+      const hasArticle=services.some(s=>s.cat==='publicacao' && (+s.valor||0)>0);
+      const hasCongress=services.some(s=>s.cat==='congresso' && (+s.valor||0)>0);
+      if(!hasArticle){
+        yellows.push({sec:'sec-serv',msg:'Boa prática ANEEL: preveja valor para taxa de publicação de artigos científicos em Serviços de Terceiros e Outros.'});
+      }
+      if(!hasCongress){
+        yellows.push({sec:'sec-serv',msg:'Boa prática ANEEL: preveja valor para taxa de inscrição em congresso em Serviços de Terceiros e Outros.'});
+      }
+      yellows.push({sec:'sec-viag',msg:'Boa prática ANEEL: verifique se o projeto prevê congresso e a viagem associada, incluindo passagem e diárias quando aplicáveis.'});
     }
     return {reds,yellows};
   }
@@ -4485,7 +4505,7 @@ const MACRO = {
     return {ptec:'sec-ptec',padm:'sec-padm',viagens:'sec-viag',soft:'sec-soft',equip:'sec-equip',cons:'sec-cons',serv:'sec-serv',matp:'sec-matp'}[key]||'sec-config';
   },
   rubricFor(key){
-    return {ptec:'Pessoal técnico',padm:'Pessoal administrativo',viagens:'Viagens e diárias',soft:'Software',equip:'Uso de equipamentos',cons:'Material de consumo',serv:'Serviços de terceiros',matp:'Material permanente'}[key]||key;
+    return {ptec:'Pessoal técnico',padm:'Pessoal administrativo',viagens:'Viagens e diárias',soft:'Software',equip:'Uso de equipamentos',cons:'Material de consumo',serv:'Serviços de Terceiros e Outros',matp:'Material permanente'}[key]||key;
   },
   itemLabel(key,item){
     return String(item?.nome||item?.destino||this.rubricFor(key));
@@ -5184,7 +5204,14 @@ const VAL={
       reds.push(...macroFunding.reds); yellows.push(...macroFunding.yellows);
     }
 
-    if(projectCalc.total===0) return {reds,yellows};
+    if(projectCalc.total===0){
+      // Os lembretes ANEEL são permanentes, inclusive durante o preenchimento inicial vazio.
+      if(isANEEL){
+        const practices=BEST_PRACTICES.runDetailed(st,calc,proposalForValidation);
+        reds.push(...practices.reds); yellows.push(...practices.yellows);
+      }
+      return {reds,yellows};
+    }
 
     // Combinação de fomentos inválida (máx. 2; ANP+Petrobras proibido).
     const comboErr = FOMENTO.comboError(st.meta);
@@ -5239,7 +5266,7 @@ const VAL={
       else if(isProjectLevelValidation && sup&&sup.pct<DATA.embrapii_suporte_max-0.005) yellows.push({sec:'sec-config',msg:`Suporte Operacional em ${fmt_pct(sup.pct)}, abaixo do máximo (15%). Cobrar o teto maximiza ressarcimento.`});
 
       const totalServicos=(projectCalc.serv_fin||0)+(projectCalc.serv_eco||0);
-      if(isProjectLevelValidation && totalServicos>projectCalc.total*DATA.embrapii_terceiros_max+1) reds.push({sec:'sec-serv',msg:`Serviços de Terceiros (${fmt_r(totalServicos)}) excedem 30% do total consolidado (EMBRAPII §8.2.iv).`});
+      if(isProjectLevelValidation && totalServicos>projectCalc.total*DATA.embrapii_terceiros_max+1) reds.push({sec:'sec-serv',msg:`Serviços de Terceiros e Outros (${fmt_r(totalServicos)}) excedem 30% do total consolidado (EMBRAPII §8.2.iv).`});
       st.serv.forEach(s=>{
         const source=FUNDING.sourceOf(s);
         const required=s.cat==='pdi'?'eb':'ep';
@@ -6210,7 +6237,7 @@ const SERV={
         <div class="row-grid" style="grid-template-columns:2fr 1fr 1.5fr 1fr 1fr;padding-right:28px">
           <div class="fg"><label class="lbl">Descrição</label><input type="text" value="${esc(s.nome)}" onchange="SERV.upd('${s.id}','nome',this.value)"></div>
           <div class="fg"><label class="lbl">PF / PJ</label><select onchange="SERV.upd('${s.id}','tipo',this.value)"><option value="pj"${s.tipo==='pj'?' selected':''}>PJ</option><option value="pf"${s.tipo==='pf'?' selected':''}>PF</option></select></div>
-          <div class="fg"><label class="lbl">Categoria</label><select onchange="SERV.upd('${s.id}','cat',this.value)"><option value="pdi" ${s.cat==='pdi'?' selected':''}>PD&I</option><option value="tec" ${s.cat==='tec'?' selected':''}>Serv. Técnicos</option><option value="man" ${s.cat==='man'?' selected':''}>Manutenção</option><option value="out" ${s.cat==='out'?' selected':''}>Outros</option></select></div>
+          <div class="fg"><label class="lbl">Categoria</label><select onchange="SERV.upd('${s.id}','cat',this.value)"><option value="pdi" ${s.cat==='pdi'?' selected':''}>PD&I</option><option value="tec" ${s.cat==='tec'?' selected':''}>Serv. Técnicos</option><option value="publicacao" ${s.cat==='publicacao'?' selected':''}>Publicação científica</option><option value="congresso" ${s.cat==='congresso'?' selected':''}>Taxa de congresso</option><option value="man" ${s.cat==='man'?' selected':''}>Manutenção</option><option value="out" ${s.cat==='out'?' selected':''}>Outros</option></select></div>
           <div class="fg"><label class="lbl">Nacional?</label><select onchange="SERV.upd('${s.id}','nacional',this.value==='true')"><option value="true" ${s.nacional?' selected':''}>Nacional</option><option value="false" ${!s.nacional?' selected':''}>Internacional</option></select></div>
           <div class="fg"><label class="lbl">Valor (R$)</label><input type="number" value="${s.valor||0}" min="0" onchange="SERV.upd('${s.id}','valor',+this.value)"></div>
         </div>
@@ -6225,7 +6252,7 @@ const SERV={
         <div class="track-banner removed">✕ Removido — ${esc(s.nome||'—')} · ${fmt_r(s.valor||0)}</div>
       </div>`;
     });
-    document.getElementById('list-serv').innerHTML=html||emptyState('Nenhum serviço de terceiros');
+    document.getElementById('list-serv').innerHTML=html||emptyState('Nenhum serviço ou outro custo cadastrado');
     const servAllTotal=STATE.serv.reduce((s,x)=>s+(x.valor||0),0)+(aggServ?.total||0);
     document.getElementById('cnt-serv').textContent=STATE.serv.length+(TEAM.buildMaeAggregated(STATE.proposal.id)?.equipes_serv?.reduce((s,g)=>s+g.items.length,0)||0);
     document.getElementById('tot-serv').textContent=fmt_r(servAllTotal);
@@ -6589,7 +6616,7 @@ function renderResume(){
   h += rubricaSection('Software', e=>({fin:e.calc?.soft_fin||0, eco:e.calc?.soft_eco||0}), maeSoftFin, maeSoftEco);
   h += rubricaSection('Uso de Equipamentos', e=>({fin:e.calc?.equip_fin||0, eco:e.calc?.equip_eco||0}), maeEquipFin, maeEquipEco);
   h += rubricaSection('Material de Consumo', e=>({fin:e.calc?.cons_fin||0, eco:e.calc?.cons_eco||0}), maeConsFin, maeConsEco);
-  h += rubricaSection('Serviços de Terceiros', e=>({fin:e.calc?.serv_fin||0, eco:e.calc?.serv_eco||0}), maeServFin, maeServEco);
+  h += rubricaSection('Serviços de Terceiros e Outros', e=>({fin:e.calc?.serv_fin||0, eco:e.calc?.serv_eco||0}), maeServFin, maeServEco);
   h += rubricaSection('Material Permanente', e=>({fin:e.calc?.matp_fin||0, eco:e.calc?.matp_eco||0}), maeMatpFin, maeMatpEco);
 
   const totalInds = consol.indsFin || 0;
@@ -6638,7 +6665,7 @@ function renderVal(){
   const mkChip=(item,short)=>`<div class="val-chip ${item.t}" onclick="UI.scrollTo('${item.sec}')" title="${esc(item.msg)}"><span class="val-chip-dot"></span>${short?item.msg.substring(0,55)+(item.msg.length>55?'…':''):item.msg}</div>`;
   const detailInfo=(item)=>{
     const msg=item.msg||'';
-    const rubMap={ptec:'Pessoal técnico',padm:'Pessoal administrativo',viag:'Viagens e diárias',soft:'Software',equip:'Uso de equipamentos',cons:'Material de consumo',serv:'Serviços de terceiros',matp:'Material permanente',config:'Configurações gerais'};
+    const rubMap={ptec:'Pessoal técnico',padm:'Pessoal administrativo',viag:'Viagens e diárias',soft:'Software',equip:'Uso de equipamentos',cons:'Material de consumo',serv:'Serviços de Terceiros e Outros',matp:'Material permanente',config:'Configurações gerais'};
     const secKey=(item.sec||'').replace('sec-','');
     const equipe=(msg.match(/^\[([^\]]+)\]/)||[])[1]||'Proposta atual';
     const valores=[...msg.matchAll(/R\$\s*[\d.]+,\d{2}|[\d.,]+%/g)].map(m=>m[0]);
@@ -6948,7 +6975,7 @@ const EXPORT_DATA = {
     {key:'soft', label:'Software', group:'materials', calc:(item)=>CALC.softCusto(item)},
     {key:'equip', label:'Uso de equipamentos', group:'materials', calc:(item)=>CALC.equipCusto(item)},
     {key:'cons', label:'Material de consumo', group:'materials', calc:(item)=>item.valor||0},
-    {key:'serv', label:'Servicos de terceiros', group:'materials', calc:(item)=>item.valor||0},
+    {key:'serv', label:'Servicos de terceiros e outros', group:'materials', calc:(item)=>item.valor||0},
     {key:'matp', label:'Material permanente', group:'materials', calc:(item)=>item.valor||0}
   ],
   clone(obj){ return JSON.parse(JSON.stringify(obj||{})); },
@@ -7993,7 +8020,7 @@ const REVISION = {
   RUBRICAS: ['ptec','padm','viagens','soft','equip','cons','serv','matp'],
   IGNORE_FIELDS: ['id','cotacao'],
   FIELD_LABELS: {horas:'Horas',meses:'Meses',nome:'Nome',cargo:'Cargo',enc:'Vínculo',ict_pub:'ICT Pública',economico:'Econômico',fonte_recurso:'Origem do recurso',macro_id:'Macroentrega',macro_ids:'Macroentregas de atuação',valor:'Valor',valor_passagem:'Passagem/pess.',n_pessoas:'N° Pessoas',diaria_valor:'Diária/dia',diaria_dias:'N° Dias',diaria_pessoas:'Pess. c/ Diária',tipo:'Tipo',destino:'Destino',val_ano:'Custo Anual',val_aq:'Valor Aquisição',cvc:'CV Consumo',cm:'C. Manutenção',horas_proj:'Horas Proj.',custo_hora:'Preço por hora',horas_uso:'Horas de uso',valor_unitario:'Valor unitário',hm:'HM',fonte:'Fonte',data_ida:'Data Ida',data_volta:'Data Volta',nacional:'Nacional?',cat:'Categoria'},
-  RUB_LABELS: {ptec:'Pessoal Técnico',padm:'Pessoal Adm.',viagens:'Viagens',soft:'Software',equip:'Equipamentos',cons:'Mat. Consumo',serv:'Serviços',matp:'Mat. Permanente'},
+  RUB_LABELS: {ptec:'Pessoal Técnico',padm:'Pessoal Adm.',viagens:'Viagens',soft:'Software',equip:'Equipamentos',cons:'Mat. Consumo',serv:'Serviços de Terceiros e Outros',matp:'Mat. Permanente'},
 
   isRevisionMode(){ return !!(STATE.proposal && STATE.proposal.state_base); },
 

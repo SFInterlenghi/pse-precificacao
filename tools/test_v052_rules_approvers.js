@@ -72,4 +72,21 @@ ctx.APPROVERS.ensureDbUsers(db);
 assert.equal(db.users['ysantiago@firjan.com.br'].papel_global, 'gestor');
 assert.equal(db.users['jmgoncalves@firjan.com.br'].papel_global, 'gestor');
 
+// ANEEL: categorias explícitas e lembrete de viagem sempre amarelo, inclusive no início vazio.
+E.context.APPROVERS.routingTeam = () => '';
+st = blankState(); st.meta.fomento='aneel'; st.meta.fomentos=['aneel'];
+result = calcAndValidate(st);
+assert.ok(has(result.yellows, 'taxa de publicação de artigos científicos'));
+assert.ok(has(result.yellows, 'taxa de inscrição em congresso'));
+assert.ok(has(result.yellows, 'viagem associada'));
+st.ptec=[{ id:'p1', cargo:'pesquisador_qms_iv', horas:100, meses:12, enc:true, economico:false }];
+st.serv=[
+  {id:'a1',nome:'Publicação',cat:'publicacao',valor:1,economico:false},
+  {id:'c1',nome:'Inscrição',cat:'congresso',valor:1,economico:false}
+];
+result = calcAndValidate(st);
+assert.ok(!has(result.yellows, 'preveja valor para taxa de publicação'));
+assert.ok(!has(result.yellows, 'preveja valor para taxa de inscrição'));
+assert.ok(has(result.yellows, 'viagem associada'), 'lembrete de viagem ANEEL deve permanecer não bloqueante');
+
 console.log('v052 regras/aprovadores: OK');
